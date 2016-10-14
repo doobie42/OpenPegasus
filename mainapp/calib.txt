@@ -18,8 +18,8 @@ laser.usehypot    = 1 ; required don't turn; only for testing
 ; repeat the first X layers
 laser.firstlayers = 6
 laser.firstlayersrepeat = 15
-laser.firstlayers = 1
-laser.firstlayersrepeat = 1
+;laser.firstlayers = 1
+;laser.firstlayersrepeat = 1
 
 ; This calibrates the rought X/Y; this is for the short-term.  We need a matrix transormation to get it better.
 x.scalemm         = 340
@@ -44,8 +44,8 @@ z.donelift        = 1600    ; lift after print is done
 z.maxlift         = 35000   ; limit to move up
 
 ; z axis motion tuning
-z.initialacd      = 7600 ; initial stepper motor acceleration delay
-z.accconst        = 330  ; ratio for slope
+z.initialacd      = 6000 ; initial stepper motor acceleration delay
+z.accconst        = 270  ; ratio for slope; lower const means faster acceleration
 
 ; Indicates how far below limit switch your vat is located.  Don't make it too low or you'll smash your build plate into the vat.
 ; GUI has a calibrate Z that can be used to find the depth; doesn't save to file

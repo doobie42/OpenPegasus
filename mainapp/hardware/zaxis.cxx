@@ -90,7 +90,7 @@ zaxis::~zaxis() {
 
 void zaxis::initStep() {
   int i;
-  AccelDecelDelay[0] = peg->calibData.getInitialACD();
+  AccelDecelDelay[0] = peg->calibData.getInitialACD()*10;
   printf("ACD[%d] = %d\n", 0, AccelDecelDelay[0]);
   for (i = 1; i < MAX_ACCEL_DECEL_STEPS; i++) {
     /***************************************************
@@ -99,18 +99,24 @@ void zaxis::initStep() {
      *  c0 = sqrt(2*a / accel)
      *  cn = cn-1 * (sqrt(n+1) - sqrt(n)
      ***************************************************/
-    AccelDecelDelay[i] = AccelDecelDelay[i-1] - (int)((2*(float)AccelDecelDelay[i-1]) / (peg->calibData.getAccConst()*((float)i)+1));
+    AccelDecelDelay[i] = AccelDecelDelay[i-1] - (int)((float)(2*AccelDecelDelay[i-1]) / (peg->calibData.getAccConst()*((float)i)+1));
     //note this won't work since this is inited before calib.
-    if (peg->calibData.DEBUG_LEVEL & DEBUG_ZAXIS) printf("AccelDecelDelay[%d]=%d dx=%d\n", i, AccelDecelDelay[i], (int)((2*(float)AccelDecelDelay[i-1]) / (peg->calibData.getAccConst()*((float)i-MAX_ACCEL_DECEL_STEPS)+1)));
-    if (i < 10) {
-      printf("ACD[%d] = %d\n",i, AccelDecelDelay[i]);
+    if (peg->calibData.DEBUG_LEVEL & DEBUG_ZAXIS) printf("AccelDecelDelay[%d]=%d dx=%d/%f = %d\n", i, AccelDecelDelay[i], 2*AccelDecelDelay[i-1], (peg->calibData.getAccConst()*(i)+1),
+							    (int)((float)(2*AccelDecelDelay[i-1]) / (peg->calibData.getAccConst()*((float)i)+1)));
+  }
+  for (i = 1; i < MAX_ACCEL_DECEL_STEPS; i++) {
+    if (1|| i < 10) {
+      printf("ACD[%d] = %d",i, AccelDecelDelay[i]);
+      AccelDecelDelay[i] /= 10;
+      printf(" => %d\n", AccelDecelDelay[i]);
     }
   }
+  //exit(0);
   AccelerationTime = MAX_ACCEL_DECEL_STEPS;
 }
 
 void zaxis::enableZ(int en) {
-  gp->setValue(ABEN2, en ? GPIO::HIGH : GPI::LOW);
+  gp->setValue(ABEN2, en ? GPIO::HIGH : GPIO::LOW);
 }
 
 void zaxis::initZAxis() {
@@ -259,23 +265,33 @@ int zaxis::moveZ(int step, int ovr, int cnt, float speedDiv) {
   return 0;
 }
 
+int zTune[] = {MAX_ACCEL_DECEL_STEPS / 10,
+	       MAX_ACCEL_DECEL_STEPS / 7,
+	       MAX_ACCEL_DECEL_STEPS / 5,
+	       MAX_ACCEL_DECEL_STEPS / 2,
+	       MAX_ACCEL_DECEL_STEPS,
+	       MAX_ACCEL_DECEL_STEPS + 1,
+	       MAX_ACCEL_DECEL_STEPS * 1.25,
+	       MAX_ACCEL_DECEL_STEPS * 1.5,
+	       MAX_ACCEL_DECEL_STEPS * 2};
+	  
 void zaxis::tuneZ() {
   printf("Seeking 'home'\n");
   moveZHome();
   printf("Found home, measure position and press Any Key to Continue\n");  
-  for (int z = 0 ; z <= 10; z++) {
-    getchar();  
-    printf("Attempt %z\n");
-    for (int i = 0; i < 25; i++) {
-      int r = rand() % 10000;
-      moveZAbs(r, 1);
+  for (unsigned int z = 0 ; z < sizeof(zTune)/sizeof(int); z++) {
+    getchar();
+    printf("Attempt %z, distance=%d ticks or %f mm (accelpts=%d)\n", zTune[z], (float)zTune[z]/peg->calibData.getScale(2,1), MAX_ACCEL_DECEL_STEPS);
+    for (int i = 0; i < 10; i++) {
+      moveZAbs(zTune[z], 1);
+      usleep(peg->calibData.getLiftPause());
+      moveZAbs(0, 1);
       if (i % 10 == 0) {
-	printf ("%3d%% done.\n", i/10);
+	printf ("\r%3d of 25.", i);
       }
+      usleep(peg->calibData.getLiftPause());
     }
-    printf("Seeking 'home'\n");
-    moveZAbs(0,1);
-    printf("Measure the home position now; press any key to run again.\n");
+    printf("\nMeasure the home position now; press any key to run again.\n");
   }
 }
 

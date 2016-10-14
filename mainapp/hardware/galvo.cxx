@@ -73,6 +73,7 @@ void galvo::writeDataToPRU(int packets, sGalvo *pkts, unsigned int loops, unsign
   prussdrv_pru_clear_event (PRU_EVTOUT_0, PRU0_ARM_INTERRUPT);
   // TBD: when I upgrade I can fix this, but the version of pruss has a bug with events that have the event occuring twice (https://github.com/beagleboard/am335x_pru_package/issues/28)
   // wait for PRU response
+  //__sync_synchronize();return;
   prussdrv_pru_wait_event (PRU_EVTOUT_0);
   // clear PRU response
   prussdrv_pru_clear_event (PRU_EVTOUT_0, PRU0_ARM_INTERRUPT);
@@ -176,26 +177,27 @@ void galvo::runGalvo(int layer) {
   }
   if (pkt.nbrPkts > 0) {
     if (!(peg->calibData.DEBUG_LEVEL & DEBUG_NOGALVO)) {
-#ifdef OLD_LOOPS
-      for (int i = 0; i < loops; i++) {
-	if (i != 0) {
-#endif
-	  enablePRU();
-#ifdef OLD_LOOPS
-	}
-#endif
+      //#ifdef OLD_LOOPS
+      //for (int i = 0; i < loops; i++) {
+      //if (i != 0) {
+      //#endif
+      enablePRU();
+      //#ifdef OLD_LOOPS
+      //}
+      //#endif
 	sendDataToPRU();
-#ifdef OLD_LOOPS
-      }
-#endif
-      peg->zaxisControl.setCurrentZPrinted();
+	//#ifdef OLD_LOOPS
+	//}
+	//#endif
+	disablePRU();
+	peg->zaxisControl.setCurrentZPrinted();
     } else {
       printf("Skipping GALVO run\n");
     }
     pkt.nbrPkts = 0;
   }
   if (!(peg->calibData.DEBUG_LEVEL & DEBUG_NOGALVO)) {
-    disablePRU();
+
   }
 }
  

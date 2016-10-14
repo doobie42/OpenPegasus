@@ -493,42 +493,30 @@ int gcode::parseGCode(int execute, gcodeStatus stopAt) {
 	  if (analyzed) {
 	    doneLayers++;
 	    //int elapsed;
-#ifdef OLD_TIME
-	    struct timeval timeDiff, curTime;
-	    //printf("Getting TOD\n");
-	    gettimeofday(&curTime, NULL);
-	    //printf("elapsed..\n");
-	    //elapsed = 
-	    timeval_subtract(&timeDiff, &curTime, &startTime);
-#else
 	    time_t curTime = time(0);
 	    double timeDiffSec = difftime(curTime, startTime);
-#endif
+	    double percentDne = (double)((((double)doneLayers/(double)totalLayers)+((double)doneLaser/(double)totalLaser)))/2;
+	    double remain;
+	    if (percentDne == 0) {
+	      remain = 100000;
+	    } else {
+	      remain = (int)((double)timeDiffSec / percentDne) - timeDiffSec;
+	    }
 	    //printf("if\n");
 	    if (gui == NULL) {
 	      printf("\tDone layers = %d of %d %f %%\n", doneLayers, totalLayers, (float)doneLayers/(float)totalLayers*100);
 	      printf("\tDone laser = %d of %d or %f %%\n", doneLaser, totalLaser, (float)doneLaser/(float)totalLaser*100);
-#ifdef OLD_TIME
-	      printf("\tElapsed time: %02d:%02d:%02d.%02d\n", int(timeDiff.tv_sec / 60 / 60), int(timeDiff.tv_sec / 60) % 60, (int)timeDiff.tv_sec % 60, (int)timeDiff.tv_usec);
-	      float percentDne = (float)((((float)doneLayers/(float)totalLayers)+((float)doneLaser/(float)totalLaser)))/2;
-	      int remain = (int)((float)timeDiff.tv_sec / percentDne);
-	      printf("\tRemain  time: %02d:%02d:%02d (%d = %d / %f %%)\n", int(remain / 60 / 60), int(remain / 60) % 60, (int)remain % 60, remain, (int)timeDiff.tv_sec, percentDne);
-#else
+
 	      printf("\tElapsed time: %02d:%02d:%02d\n", int(timeDiffSec / 60 / 60), int(timeDiffSec / 60) % 60, (int)timeDiffSec % 60);
-	      double percentDne = (double)((((double)doneLayers/(double)totalLayers)+((double)doneLaser/(double)totalLaser)))/2;
-	      double remain = (int)((double)timeDiffSec / percentDne);
 	      printf("\tRemain  time: %02d:%02d:%02d (%f = %f / %f %%)\n", int(remain / 60 / 60), int(remain / 60) % 60, (int)remain % 60, remain, timeDiffSec, percentDne);
-#endif
+
 	    } else {
 	      gui->getFile()->setLayers(doneLayers, totalLayers);
 	      gui->getFile()->setLaser(doneLaser, totalLaser);
-#ifdef OLD_TIME
-	      gui->getFile()->setElapsed(&timeDiff);
-	      gui->getFile()->setRemain(timeDiff.tv_sec, ((float)doneLayers/(float)totalLayers), ((float)doneLaser/(float)totalLaser));
-#else 
+
 	      //todo:gui->getFile()->setElapsed(&timeDiffSec);
 	      //todo:gui->getFile()->setRemain(timeDiff.tv_sec, ((float)doneLayers/(float)totalLayers), ((float)doneLaser/(float)totalLaser));
-#endif
+
 	    }
 	  }
 	}
