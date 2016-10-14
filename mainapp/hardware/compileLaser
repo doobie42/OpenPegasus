@@ -1,0 +1,4 @@
+pasm -b -l runlaser.p ../bin/runlaser
+pasm -l  runlaser.p ../bin/runlaser
+pasm -b stoplaser.p ../bin/stoplaser
+gcc -o ../bin/stoplaser stoplaser.c -lprussdrv

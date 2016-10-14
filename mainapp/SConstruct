@@ -1,0 +1,34 @@
+import os;
+
+env = Environment(
+    CXX = "g++",	
+    CC  = "g++",
+    CPP = "g++",
+    CCFLAGS  = ["-g", "-Wall", "-L/lib64", "-DREAL_HARDWARE", "-DREAL_Z", "-DREAL_GALVO"],
+    CXXFLAGS  = ["-g", "-Wall", "-L/lib64", "-DREAL_HARDWARE", "-DREAL_Z", "-DREAL_GALVO"],
+    CCPATH = ["-I./", "-Igeneral/"],
+    CPPPATH = ["-I./", "-Igeneral/"]
+    
+);
+env.ParseConfig('pkg-config --cflags --libs gtkmm-3.0')
+FILES = ["general/calib.cxx",
+      "general/gcode.cxx",
+      "general/pegasus.cxx", 
+#      "GPIO/BeagleBoneBlack-GPIO.cxx", 
+      "GPIO/GPIOConst.cxx", 
+      "GPIO/GPIOManager.cxx", 
+      "gui/File.cxx", 
+      "gui/Calibrate.cxx", 
+      "gui/CalibrateZ.cxx", 
+      "gui/Graphics.cxx", 
+      "gui/MainApp.cxx", 
+      "gui/Settings.cxx", 
+      "hardware/galvo.cxx",
+      "hardware/zaxis.cxx",
+      "gui/main.cxx",
+];
+
+gui_objects = [env.Object(x) for x in FILES];
+
+env.Program("bin/gui", gui_objects,
+		       LINKFLAGS = ['-m32', '-lpthread', '-lprussdrv']);

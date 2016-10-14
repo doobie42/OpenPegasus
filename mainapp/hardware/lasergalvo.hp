@@ -1,0 +1,205 @@
+//general PRU definitions
+// Refer to this mapping in the file - pruss_intc_mapping.h
+#define PRU0_PRU1_INTERRUPT     17
+#define PRU1_PRU0_INTERRUPT     18
+#define PRU0_ARM_INTERRUPT      19
+#define PRU1_ARM_INTERRUPT      20
+#define ARM_PRU0_INTERRUPT      21
+#define ARM_PRU1_INTERRUPT      22
+
+#define CONST_PRUSSINTC      C0
+#define CONST_DMTIMER2       C1
+#define CONST_ECAP           C3
+#define CONST_PRUCFG         C4
+#define CONST_PRURAM         C24
+#define CONST_PRURAM_OTHER   C25
+#define CONST_IEP            C26
+#define CONST_PRUSHAREDRAM   C28
+#define CONST_DDR            C31
+#define PRU0_R31_VEC_VALID 32    // allows notification of program completion
+#define PRU_EVTOUT_0    3        // the event number that is sent back
+
+#define SICR_OFFSET           0x24
+
+#define GALVO_SCLK            0 // p9_31
+#define GALVO_DIN             1 // p9_29
+#define GALVO_SYNC            3 // p9_28
+#define GALVO_LDAC            5 // p8_27
+
+#define LASER_CURRENT_ENABLE 14 // p8_12
+#define LASER_ENABLE         15 // p8_11
+
+#define LASER_POWER_CYCLES    100 // Between this, the repeat, and laser pattern we control the exposure time.
+#define LASER_OFF_WAIT       1000 // how long to wait when we turn off the laser before moving (if we move too soon, the laser might still be on)
+#define LASER_ON_WAIT        1000 // how long to wait when we turn on the laser after moving (if we move too soon, the galvo might still be moving)
+
+// Register's used
+#define rDataX               r2
+#define rDataY               r3
+#define rScratchPad          r5 // scratch space 
+#define rMemoryPointer       r6 // pointer to data memory
+#define rLaserData           r8 // must be before rGalvoData  (uses lbco to load both)
+#define rGalvoData           r9 // must be after rRepeatPattern (uses lbco to load both)
+#define rRepeatPattern       r7
+#define rNumberOfPackets     r10
+#define rLaserPattern        r11
+#define rIterator            r12  // compare usage to scratchpad and see if we can use a single one?
+#define rResetInterrupt      r13
+; for debug
+#define rMoreData            r14
+#define rLastMePtr           r15
+
+.macro nop
+   mov r1, r1
+.endm
+
+.macro dacSPI
+.mparam rSPIData
+// LDAC pattern is 24 bits.
+// (msb) DB23:22 (DC), C2:C0, A2:A0, DB15:DB0 (lsb)
+   mov rScratchPad, rSPIData ;; copy as scratch this way we don't need to reinit the upper bits for the X/Y
+   mov rIterator, 24
+   // start write sync going low after the clk, this indicates the next 
+   //  SCLK ---___---___---___---___---___---___...---___---___---___
+   //  SYNC ----____________________________________________
+   // SCLK can be up to 50mhz (4 instructions)
+   // we need to try to balance the SCLK high and low;
+   set r30, GALVO_SCLK   // CLK HIGH
+   nop
+   clr r30, GALVO_SYNC
+SPILOOP:
+   qbbs SPISET, rScratchPad, 23 // msb
+SPICLR:
+   clr r30, GALVO_DIN
+   jmp SCLK
+SPISET:
+   set r30, GALVO_DIN
+   nop // even out the clock from the JMP above
+SCLK:
+   // clr, 5 cycles, set, 2 cycles here, 3 cycles above for 
+   clr r30, GALVO_SCLK     // CLK LOW
+   lsl rScratchPad, rScratchPad, 1
+   nop  // see if we can reliably remove any of these?  We cannot run more than 50mhz for the dac8563.  200mhz/4=50mhz; right now we're ~40mhz (need to break out my 'scope to verify; or lower until doesn't work?)
+   nop
+   nop
+   nop
+   set r30, GALVO_SCLK      // CLK HIGH
+   sub1qbne rIterator, SPILOOP, 0 // 2 cycles
+   // we're done, resetr SCLK low, and GALVO_SYNC high
+   set r30, GALVO_SYNC
+   nop
+   nop
+   nop
+   nop
+   clr r30, GALVO_SCLK
+   nop
+   nop
+   nop
+   nop
+.endm
+
+.macro signalHostBufferUsed
+       MOV r31.b0, (1<<5) | 3
+.endm
+
+
+.macro runLaserM
+     // turn on laser current
+     set r30, LASER_CURRENT_ENABLE
+     mov rLaserPattern, rLaserData.w0
+
+     // need to give the laser time to turn off before we move again.
+     mov rIterator, LASER_ON_WAIT
+LASERWAITON:
+     sub1qbne rIterator, LASERWAITON, 0
+
+     mov rIterator, 24 // execute 24 times
+LASERCHECK:
+     qbbs LASERON, rLaserPattern, 0 // check bit 0 for pattern
+     // we need to match timing for on/off.
+
+     //////////////////////////////////
+     // begin with tight timing zone /
+     ////////////////////////////////
+LASEROFF:
+     clr r30, LASER_ENABLE
+     jmp LASERWAIT
+LASERON:
+     set r30, LASER_ENABLE
+     jmp LASERWAIT  ; yeah it's the next addr, but we need a matched path between on/off for 50/50 duty cycle.
+LASERWAIT:
+     // here we can control laser timing: 200mhz => 5ns per opcode: 1 from jmp above
+     // 2 cycles
+     mov rScratchPad, LASER_POWER_CYCLES 
+     // 3 cycles: shift the pattern
+     lsr rLaserPattern, rLaserPattern, 1
+     // time = 5ns * (3 + LASER_POWER_CYCLES * 2); currently (LPC=100) = 203*5 = 1015ns per spot.
+     // 
+LASERWAITLOOP:
+     sub1qbne rScratchPad, LASERWAITLOOP, 0 // 2*loop instructions
+     /////////////////////////////////
+     // done with tight timing zone /
+     ///////////////////////////////
+
+     sub1qbne rIterator, LASERCHECK, 0
+
+     // turn off laser we're about to return
+     disableLaser
+
+     // need to give the laser time to turn off before we move again.
+     mov rIterator, LASER_OFF_WAIT
+LASERWAITOFF:
+     sub1qbne rIterator, LASERWAITOFF, 0
+.endm
+
+.macro sub1qbne
+.mparam cnt, label, equal
+	sub cnt, cnt, 1
+	qbne label, cnt, equal
+.endm
+
+.macro getMemoryBuffer
+.mparam rParam, cnt
+     lbco rParam, CONST_PRUSHAREDRAM, rMemoryPointer, cnt
+     add rMemoryPointer, rMemoryPointer, cnt
+.endm
+
+//////////////////////
+// interrupt macros //
+//////////////////////
+.macro enableInterrupt
+//    INITIALIZE IEP INTERRUPTS
+
+       mov r14,0xFFFFFF           //For CMP0, compare trigger
+       sbco r14,c26,0x48,4
+       mov r14,0x3                // enable CMP0, and enable
+       sbco r14,c26,0x40,4        // counter reset on event
+       mov r14,0x1
+       sbco r14,c26,0x44,4        // clear status for CMP0
+       lbco r14,c26,0x4,4
+       sbco r14,c26,0x4,4         // clear GLOBAL status, overflow
+       mov r14,0x111              // enable IEP counter, inc 1
+       sbco r14,c26,0,4
+.endm
+
+.macro sendHostInterrupt
+  MOV	    R31.b0, PRU0_R31_VEC_VALID | PRU_EVTOUT_0
+.endm
+
+.macro waitForHostInterrupt
+  // PRU Host Interrupt 0 from local INTC
+  WBS r31, #30
+  resetInterrupts
+.endm
+
+.macro resetInterrupts
+   sbco rResetInterrupt, CONST_PRUSSINTC, SICR_OFFSET, 4
+.endm
+
+.macro disableLaser
+      ; disable voltage regulator
+      clr r30, LASER_CURRENT_ENABLE
+      ; disable laser
+      clr r30, LASER_ENABLE
+.endm
+

@@ -1,0 +1,8 @@
+gcode
+bin
+*.bin
+*.gcode
+*.log
+*~
+#*#
+*.o

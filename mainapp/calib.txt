@@ -1,0 +1,109 @@
+; comment
+debug.value       = 0x000
+;debug.value       = 0xFFFF
+;debug.value       = 0x0C100
+;disable Z = 0x4000
+;debug.value       = 0x40ef
+;disable galvo
+;debug.value       = 0x8020
+;disable Z+Galvo
+;debug.value       = 0xc0ef
+;debug.value       = 0xffff
+laser.pattern     = 0xffff
+laser.repeat      = 0x1
+
+laser.spotsize    = 80
+laser.usehypot    = 1 ; required don't turn; only for testing
+
+; repeat the first X layers
+laser.firstlayers = 6
+laser.firstlayersrepeat = 15
+laser.firstlayers = 1
+laser.firstlayersrepeat = 1
+
+; This calibrates the rought X/Y; this is for the short-term.  We need a matrix transormation to get it better.
+x.scalemm         = 340
+y.scalemm         = 340
+; offset to where we can start printing; in ticks, divide by scale to determine how many MM from edge
+x.offset          = 2750
+y.offset          = 2750
+
+; estimated zaxis
+z.scalemm         = 200
+
+; How far to lift after a layer completes (in ticks; divide by scalemm=how far in MM)
+z.liftdistance        = 2000
+; Pause after layer is printed before lifting
+z.liftpause       = 500000 ; 1 second(s)
+z.liftsteps       = 1
+; Pause after lift before lowering for next layer
+z.lowerpause      = 500000 ; .5 second(s)
+; Pause after lowering before starting print
+z.printpause      = 500000 ; 1 second(s)
+z.donelift        = 1600    ; lift after print is done
+z.maxlift         = 35000   ; limit to move up
+
+; z axis motion tuning
+z.initialacd      = 7600 ; initial stepper motor acceleration delay
+z.accconst        = 330  ; ratio for slope
+
+; Indicates how far below limit switch your vat is located.  Don't make it too low or you'll smash your build plate into the vat.
+; GUI has a calibrate Z that can be used to find the depth; doesn't save to file
+z.belowlimit      = 1120
+
+; new calibration method.
+general.matrix = 0
+x.point0 = 2750
+y.point0 = 2750
+x.point1 = 18050
+y.point1 = 2750
+x.point2 = 33350
+y.point2 = 2750
+x.point3 = 48650
+y.point3 = 2750
+x.point4 = 63950
+y.point4 = 2750
+
+x.point5 = 2750
+y.point5 = 18050
+x.point6 = 18050
+y.point6 = 18050
+x.point7 = 33350
+y.point7 = 18050
+x.point8 = 48650
+y.point8 = 18050
+x.point9 = 64350
+y.point9 = 18050
+
+x.point10 = 2750
+y.point10 = 33350
+x.point11 = 18050
+y.point11 = 33350
+x.point12 = 33350
+y.point12 = 33350
+x.point13 = 48650
+y.point13 = 33350
+x.point14 = 64550
+y.point14 = 33350
+
+x.point15 = 2750
+y.point15 = 48650
+x.point16 = 18050
+y.point16 = 48650
+x.point17 = 33350
+y.point17 = 48650
+x.point18 = 48650
+y.point18 = 48650
+x.point19 = 65000
+y.point19 = 48650
+
+x.point20 = 2750
+y.point20 = 63950
+x.point21 = 18050
+y.point21 = 63950
+x.point22 = 33350
+y.point22 = 63950
+x.point23 = 48650
+y.point23 = 63950
+x.point24 = 63950
+y.point24 = 63950
