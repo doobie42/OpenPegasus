@@ -91,7 +91,7 @@ zaxis::~zaxis() {
 void zaxis::initStep() {
   int i;
   AccelDecelDelay[0] = peg->calibData.getInitialACD()*10;
-  printf("ACD[%d] = %d\n", 0, AccelDecelDelay[0]);
+  //printf("ACD[%d] = %d\n", 0, AccelDecelDelay[0]);
   for (i = 1; i < MAX_ACCEL_DECEL_STEPS; i++) {
     /***************************************************
      * Copyright (C) 1995, Douglas W. Jones; major revision:1998.  This work may be transmitted or stored in electronic form on any computer attached to the Internet or World Wide Web so ong as this notice is included in the copy.  Individuals may make single copies for heir own use.  All other rights are reserved.
@@ -106,9 +106,9 @@ void zaxis::initStep() {
   }
   for (i = 1; i < MAX_ACCEL_DECEL_STEPS; i++) {
     if (1|| i < 10) {
-      printf("ACD[%d] = %d",i, AccelDecelDelay[i]);
+      //printf("ACD[%d] = %d",i, AccelDecelDelay[i]);
       AccelDecelDelay[i] /= 10;
-      printf(" => %d\n", AccelDecelDelay[i]);
+      //printf(" => %d\n", AccelDecelDelay[i]);
     }
   }
   //exit(0);
@@ -281,7 +281,7 @@ void zaxis::tuneZ() {
   printf("Found home, measure position and press Any Key to Continue\n");  
   for (unsigned int z = 0 ; z < sizeof(zTune)/sizeof(int); z++) {
     getchar();
-    printf("Attempt %z, distance=%d ticks or %f mm (accelpts=%d)\n", zTune[z], (float)zTune[z]/peg->calibData.getScale(2,1), MAX_ACCEL_DECEL_STEPS);
+    printf("Attempt %d, distance=%d ticks or %f mm (accelpts=%d)\n", z, zTune[z], (float)zTune[z]/peg->calibData.getScale(2,1), MAX_ACCEL_DECEL_STEPS);
     for (int i = 0; i < 10; i++) {
       moveZAbs(zTune[z], 1);
       usleep(peg->calibData.getLiftPause());

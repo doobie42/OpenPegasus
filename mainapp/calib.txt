@@ -52,7 +52,7 @@ z.accconst        = 270  ; ratio for slope; lower const means faster acceleratio
 z.belowlimit      = 1120
 
 ; new calibration method.
-general.matrix = 0
+general.matrix = 1
 x.point0 = 2750
 y.point0 = 2750
 x.point1 = 18050

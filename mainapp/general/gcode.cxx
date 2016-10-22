@@ -150,14 +150,6 @@ int gcode::scaleAndMove(int execute, float X, float Y) {
   int p = 0;
   if (peg->calibData.useMatrixCalib()) {
     peg->calibData.transformXY(X, Y, &XS, &YS);
-  } else if (peg->calibData.isUnitsMM()) {
-    //printf("X MM: %d %d\n",  peg->calibData.getScale(0,1), peg->calibData.getOffset(0,1));
-    //printf("Y MM: %d %d\n",  peg->calibData.getScale(1,1), peg->calibData.getOffset(1,1));
-    YS  = (int)(Y * peg->calibData.getScale(1,1) + peg->calibData.getOffset(1,1));
-    XS  = (int)(X * peg->calibData.getScale(0,1) + peg->calibData.getOffset(0,1));
-  } else {
-    YS  = (int)(Y * peg->calibData.getScale(1,0) + peg->calibData.getOffset(1,0));
-    XS  = (int)(X * peg->calibData.getScale(0,0) + peg->calibData.getOffset(0,0));
   }
   //printf("X/Y=%d, %d from %f, %f\n", XS, YS, X,Y);
   if (!analyzed) {
@@ -165,7 +157,7 @@ int gcode::scaleAndMove(int execute, float X, float Y) {
   } else {
     doneLaser++;
   }
-
+  
   if (analyzed) {
     if (execute & RUN_HARDWARE) {
       int laserRepeat;
@@ -215,7 +207,7 @@ gcodeStatus gcode::processG(int execute, float value, char*buffer) {
     float xline = 0;
     float yline = 0;
     float eline = 0;
-    float fline = 0;
+    //tbd:float fline = 0;
     float zline = 0;
     int hasElement =0;
     //printf("bufferG: %s\n", buffer);
@@ -239,7 +231,7 @@ gcodeStatus gcode::processG(int execute, float value, char*buffer) {
 	hasElement |= 1<<HAS_E;
 	break;
       case 'F': //TBD: do we want/need to handle this?
-	fline = val; 
+	//tbd:fline = val; 
 	hasElement |= 1<<HAS_F;
 	break;
       default:

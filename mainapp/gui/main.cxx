@@ -15,11 +15,12 @@ int main(int argc, char *argv[])
 {
   if (argc == 3) {
     pegasus peg(NULL);
-    printf("Here we area...\n");
     peg.calibData.readCalib(argv[1]);
     peg.gcodeProcessor.SetRunReal(1);
     if (strcmp(argv[2], "z") == 0) {
       peg.zaxisControl.tuneZ();
+    }else if (strcmp(argv[2], "l") == 0) {
+      peg.galvoControl.tuneGalvo();
     } else {
       peg.gcodeProcessor.openFile(argv[2]);
     }

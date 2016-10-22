@@ -203,7 +203,7 @@ void galvo::runGalvo(int layer) {
  
 void galvo::addMoveTo(ushort X, ushort Y, int L, ushort R, int layer) {
   pkt.myPackets[pkt.nbrPkts].LaserData = (((int)R & 0xFF) << 24) | (L & 0xFFFFFF);
-  //printf("X:%x, Y:%x, L:%x, R:%x => %08x\n", X, Y, L, R, pkt.myPackets[pkt.nbrPkts].LaserData);
+  //printf("X:%5d, Y:%5d, L:%x, R:%3d => %08x\n", X, Y, L, R, pkt.myPackets[pkt.nbrPkts].LaserData);
   pkt.myPackets[pkt.nbrPkts].Xdac = (ushort)X;
   pkt.myPackets[pkt.nbrPkts].Ydac = (ushort)Y;
   pkt.nbrPkts++;
@@ -212,3 +212,111 @@ void galvo::addMoveTo(ushort X, ushort Y, int L, ushort R, int layer) {
   }
 }
 
+void galvo::tuneGalvo() {
+  char input;
+  int maxPts = PTS_X*PTS_Y;
+  int pt = 0;
+  int x = 0;
+  int y = 0;
+  int speed = 10;
+  input = 0;
+  ushort xp, yp;
+  int runLaser = 1;
+  while (input != 'q') {
+    if (runLaser) {
+      for (int i = 0; i < 50; i++) {
+	peg->calibData.getCalibPts(x, y, &xp, &yp);
+	addMoveTo(xp, yp, 0x1111, 0xff, 0);
+      }
+      runGalvo(0);
+      runLaser = 0;
+    }
+    if (input != '\n') {
+      printf("pt%d (%d, %d), speed=%d> ", pt, x, y, speed);
+    }
+    input = getchar();
+    runLaser = 0;
+    switch (input) {
+    case 'N':
+    case 'n':
+      pt++;
+      if (input >= maxPts) {
+	input = 0;
+      }
+      x = pt % PTS_X;
+      y = pt / PTS_X;
+      runLaser = 1;
+      break;
+    case 'P':
+    case 'p':
+      pt--;
+      if (input < 0) {
+	input = maxPts - 1;
+      }
+      x = pt % PTS_X;
+      y = pt / PTS_X;
+      runLaser = 1;
+      break;
+    case 'L':
+    case 'l':
+      // move left;
+      peg->calibData.setCalibPtsDx(x, y, -speed, 0);
+      runLaser = 1;
+      break;
+    case 'R':
+    case 'r':
+      // move right;
+      peg->calibData.setCalibPtsDx(x, y, +speed, 0);
+      runLaser = 1;
+    break;
+    case 'U':
+    case 'u':
+      // move up;
+      peg->calibData.setCalibPtsDx(x, y, 0, speed);
+      runLaser = 1;
+    break;
+    case 'D':
+    case 'd':
+      // move down;
+      peg->calibData.setCalibPtsDx(x, y, 0, -speed);
+      runLaser = 1;
+    break;
+    case 'F':
+    case 'f':
+      // move faster
+      speed++;
+      break;
+    case 'S':
+    case 's':
+      // mov slower
+      speed--;
+      if (speed == 0) { speed = 1; }
+      break;
+    case ' ':
+      runLaser = 1;
+      break;
+    case 'a':
+      for (y = 0; y < PTS_Y; y++) {
+	for (x = 0; x < PTS_X; x++) {
+	  for (int i = 0; i < 30; i++) {
+	    peg->calibData.getCalibPts(x, y, &xp, &yp);
+	    addMoveTo(xp, yp, 0x1010, 0xff, 0);
+	  }
+	}
+      }
+      x = pt % PTS_X;
+      y = pt / PTS_X;
+      runGalvo(0);
+      break;
+    case 'W':
+    case 'w':
+      peg->calibData.writeCalib();
+      break;
+    case 'Q':
+    case 'q':
+      input = 'q';
+      break;
+    } // case
+  }
+  peg->calibData.writeCalib();
+}

@@ -46,17 +46,18 @@ public:
   void processXCalib(char *str);
   void processYCalib(char *str);
   void processZCalib(char *str);
-  void printCalib();
+  void printCalib(FILE*fp);
   int readCalib(char*file);
 
   // Z
-  int getLiftInitial();
+  //int getLiftInitial();
   int getLiftDistance();
   int getLowerPause();
   int getPrintPause();
   int getLiftPause();
   int getLiftSteps();
-  int getBelowLimit();
+  int getBelowLimit() { return zBelowLimit; }
+
   
   char *removeWhitespace(char *line);
   int isUnitsMM() { return unitsInMM; }
@@ -84,7 +85,17 @@ public:
   void adjustXY(int iaxis, int pt, int amount, int showLaser);
   int getInitialACD() { return zInitialACD; }
   float getAccConst() { return zAccConst; } 
+  void getCalibPts(int x, int y, ushort *xp, ushort *yp) { *xp = calibPtsGalvo[x][y][XPT];  *yp = calibPtsGalvo[x][y][YPT]; }
+  void setCalibPts(int x, int y, ushort xp, ushort yp) {   calibPtsGalvo[x][y][XPT]  = xp;  calibPtsGalvo[x][y][YPT]  = yp; }
+  void setCalibPtsDx(int x, int y, ushort xp, ushort yp) { calibPtsGalvo[x][y][XPT] += xp;  calibPtsGalvo[x][y][YPT] += yp; }
+  void writeCalib();
+  int getLiftInitial() { return zLiftInitial; }
 protected:
+  // in mm
+  static ushort calPoints[PTS_X][PTS_Y][2];
+  // galvo position
+  ushort calibPtsGalvo[PTS_X][PTS_Y][2];
+
   // auto tuned
   int ZAxisHomed; //= 0;
   int ZPosition; //= 0; // not valid until ZAxisHomed
@@ -123,20 +134,20 @@ protected:
   int zScaleMM      ; //= 1000;
   int zScaleIN      ; //= 1000;
 
+  int zLiftInitial   ;
+  int zLiftDistance   ; //= 2000;
   int zLiftPause    ; // Puase before lifting;
   int zLiftSteps    ; // number of steps to lift in
   int zLowerPause    ; // Pause before lower;
   int zPrintPause    ; // Pause before starting next layer;
-  int zLiftTicks   ; //= 2000;
-  int zLiftInitial;
   int zBelowLimit;
-  int zHomeTopBottom;
+  //int zHomeTopBottom;
   int zDoneLift;
   int zMaxLift;
   int zInitialACD;
   float zAccConst;
-
-  int calibpts[PTS_X][PTS_Y][2];
+  
+  char calibFile[512];
   pegasus *peg;
 
 };

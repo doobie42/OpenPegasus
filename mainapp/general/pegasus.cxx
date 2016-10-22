@@ -13,12 +13,12 @@ pegasus::pegasus(MainApp *a_MainPtr) :
   MainPtr(a_MainPtr),
   gcodeProcessor(this),
   galvoControl(this),
-  zaxisControl(this),
-  calibData(this)
+  calibData(this),
+  zaxisControl(this)
 {
   printf("pegasus construct\n");
   calibData.readCalib("calib.txt");
-  calibData.printCalib();
+  calibData.printCalib(stdout);
 }
 
 pegasus::~pegasus() {

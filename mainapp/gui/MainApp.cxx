@@ -56,7 +56,7 @@ MainApp::MainApp()
   printf("Reading calib.txt\n");
   Peg.calibData.readCalib("calib.txt");
   printf("Results of reading calib.txt\n");
-  Peg.calibData.printCalib();
+  Peg.calibData.printCalib(stdout);
   show_all_children();
 
 }

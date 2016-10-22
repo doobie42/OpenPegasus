@@ -15,11 +15,11 @@
 #include <ctype.h>
 #include "general/pegasus.hxx"
 
-int cpts[PTS_X][PTS_Y][2] = {{{  0,   0},{  0,  45},{  0,  90},{  0, 135},{  0, 180}},
-			     {{ 45,   0},{ 45,  45},{ 45,  90},{ 45, 135},{ 45, 180}},
-			     {{ 90,   0},{ 90,  45},{ 90,  90},{ 90, 135},{ 90, 180}},
-			     {{135,   0},{135,  45},{135,  90},{135, 135},{135, 180}},
-			     {{180,   0},{180,  45},{180,  90},{180, 135},{180, 180}}};
+ushort calibration::calPoints[PTS_X][PTS_Y][2] = {{{  0,   0},{  0,  45},{  0,  90},{  0, 135},{  0, 180}},
+						  {{ 45,   0},{ 45,  45},{ 45,  90},{ 45, 135},{ 45, 180}},
+						  {{ 90,   0},{ 90,  45},{ 90,  90},{ 90, 135},{ 90, 180}},
+						  {{135,   0},{135,  45},{135,  90},{135, 135},{135, 180}},
+						  {{180,   0},{180,  45},{180,  90},{180, 135},{180, 180}}};
 
 			     /*int cpts[PTS_X][PTS_Y][2] = {{{0,   0}, {45,   0}, {90,   0}, {135,   0}, {180,   0}},
 			     {{0,  45}, {45,  45}, {90,  45}, {135,  45}, {180,  45}},
@@ -55,17 +55,18 @@ calibration::calibration(pegasus *a_peg) :
   
   for (int x = 0; x < PTS_X; x++) {
     for (int y = 0; y < PTS_Y; y++) {
-      calibpts[x][y][0] = 340*cpts[x][y][0]+2750;
-      calibpts[x][y][1] = 340*cpts[x][y][1]+2750;
+      calibPtsGalvo[x][y][XPT] = 340 * calPoints[x][y][0] + 2750;
+      calibPtsGalvo[x][y][YPT] = 340 * calPoints[x][y][1] + 2750;
     }
   }
+
   // Z Axis
   zScaleMM          = 1000;
   zScaleIN          = 10000; // todo inches
   zLiftInitial      = 1000;
-  zLiftTicks        = 2000;
+  zLiftDistance        = 2000;
   zBelowLimit       = 40;
-  zHomeTopBottom    = 20;
+  //zHomeTopBottom    = 20;
   spotSize          = 80;
   useHypot          = 1;
   zLiftPause        = 1000000;
@@ -190,10 +191,10 @@ void calibration::adjustXY(int iaxis, int pt, int amount, int showLaser) {
   if (pt >= 0 && pt < PTS_X*PTS_Y) {
     int ptX = pt % PTS_X;
     int ptY = pt / PTS_Y;
-    calibpts[ptX][ptY][iaxis] += amount;
-    printf("adjustXY(%d, %d, %d) = %d\n", iaxis, pt, amount, calibpts[ptX][ptY][iaxis]);
+    calibPtsGalvo[ptX][ptY][iaxis] += amount;
+    printf("adjustXY(%d, %d, %d) = %d\n", iaxis, pt, amount, calibPtsGalvo[ptX][ptY][iaxis]);
     if (showLaser) {
-      peg->galvoControl.addMoveTo(cpts[ptX][ptY][XPT], cpts[ptX][ptY][YPT], peg->calibData.getLaserEnable(), peg->calibData.getLaserRepeat(), 0);
+      peg->galvoControl.addMoveTo(calPoints[ptX][ptY][XPT], calPoints[ptX][ptY][YPT], peg->calibData.getLaserEnable(), peg->calibData.getLaserRepeat(), 0);
     }
   } else {
 
@@ -208,7 +209,7 @@ void calibration::processPoint(int iaxis, const char *saxis, char *str, int valu
     } else {
       int x = pt % PTS_X;
       int y = pt / PTS_Y;
-      calibpts[x][y][iaxis] = value;
+      calibPtsGalvo[x][y][iaxis] = value;
     }
   } else {
     printf("calib.%s: Unable to process %s\n", saxis, str);
@@ -219,9 +220,11 @@ void calibration::processZCalib(char *str) {
   int value = getValue(str);
   str = removeWhitespace(str);
   if (!strncmp(str, "liftdistance", 12)) {
-    zLiftTicks = value;
+    zLiftDistance = value;
   } else if (!strncmp(str, "liftpause", 9)) {
     zLiftPause = value;
+  } else if (!strncmp(str, "liftinitial", 11)) {
+    zLiftInitial = value;
   } else if (!strncmp(str, "liftsteps", 9)) {
     zLiftSteps = value;
   } else if (!strncmp(str, "lowerpause", 9)) {
@@ -234,8 +237,8 @@ void calibration::processZCalib(char *str) {
     zScaleIN = value;
   } else if (!strncmp(str, "belowlimit", 10)) {
     zBelowLimit = value;
-  } else if (!strncmp(str, "hometopbottom", 10)) {
-    zHomeTopBottom = value;
+    //} else if (!strncmp(str, "hometopbottom", 10)) {
+    //zHomeTopBottom = value;
   } else if (!strncmp(str, "maxlift", 7)) {
     zMaxLift = value;
   } else if (!strncmp(str, "initialacd", 10)) {
@@ -252,7 +255,7 @@ void calibration::processZCalib(char *str) {
 }
 
 int calibration::getLiftDistance() {
-  return zLiftTicks;
+  return zLiftDistance;
 }
 
 int calibration::getLowerPause() {
@@ -301,57 +304,55 @@ int calibration::getOffset(int axis, int MM) {
   return 0;
 }
 
-int calibration::getLiftInitial() { 
-  return zLiftInitial;
-}
 
-int calibration::getBelowLimit() {
-  return zBelowLimit;
-}
-
-void calibration::printCalib() {
-  printf("Debug: 0x%x\n", DEBUG_LEVEL);
+void calibration::printCalib(FILE*fp) {
+  fprintf(fp, "debug.value = 0x%x\n", DEBUG_LEVEL);
   
-  printf("Laser.Pattern: 0x%x\n", LaserEnable);
-  printf("Laser.Repeat: %d\n", LaserRepeat);
-  printf("Laser.FirstLayers: %d\n", firstLayers);
-  printf("Laser.FirstLayersRepeat: %d\n", firstLayersRepeat);
+  fprintf(fp, "laser.pattern = 0x%x\n", LaserEnable);
+  fprintf(fp, "laser.repeat = %d\n", LaserRepeat);
+  fprintf(fp, "laser.firstlayers = %d\n", firstLayers);
+  fprintf(fp, "laser.firstlayersrepeat = %d\n", firstLayersRepeat);
+  fprintf(fp, "laser.spotsize = %d\n", spotSize);
+  fprintf(fp, "laser.usehypot = %d\n", useHypot);
 
-  printf("MatrixCalib: %d\n", matrixCalib);
-  printf("X ScaleMM: %d\n", xScaleMM);
-  printf("X ScaleIN: %d\n", xScaleIN);
-  printf("X Offset: %d\n", xOffset);
+  fprintf(fp, "x.scalemm = %d\n", xScaleMM);
+  fprintf(fp, "x.scalein = %d\n", xScaleIN);
+  fprintf(fp, "x.offset = %d\n", xOffset);
 
-  printf("Y ScaleMM: %d\n", yScaleMM);
-  printf("Y ScaleIN: %d\n", yScaleIN);
-  printf("Y Offset: %d\n", yOffset);
+  fprintf(fp, "y.scalemm = %d\n", yScaleMM);
+  fprintf(fp, "y.scalein = %d\n", yScaleIN);
+  fprintf(fp, "y.offset = %d\n", yOffset);
 
-  printf("Z ScaleMM: %d\n", zScaleMM);
-  printf("Z ScaleIN: %d\n", zScaleIN);
-  printf("Z LiftPause: %d\n", zLiftPause);
-  printf("Z LiftSteps: %d\n", zLiftSteps);
-  printf("Z LiftSlow: %d\n", zLiftTicks);
-  printf("Z Lift Initial: %d\n", zLiftInitial);
-  printf("Z BelowLimit: %d\n", zBelowLimit);
-  printf("Z Initial ACD: %d\n", zInitialACD);
-  printf("Z Const ACD: %f\n", zAccConst);
+  fprintf(fp, "z.liftinitial = %d\n", zLiftInitial);
+  fprintf(fp, "z.liftdistance = %d\n", zLiftDistance);
+  fprintf(fp, "z.liftpause = %d\n", zLiftPause);
+  fprintf(fp, "z.liftsteps = %d\n", zLiftSteps);
+  fprintf(fp, "z.lowerpause = %d\n", zLowerPause);
+  fprintf(fp, "z.printpause = %d\n", zPrintPause);
+  fprintf(fp, "z.scalemm = %d\n", zScaleMM);
+  fprintf(fp, "z.scalein = %d\n", zScaleIN);
+  fprintf(fp, "z.belowlimit = %d\n", zBelowLimit);
+  fprintf(fp, "z.donelift = %d\n", zDoneLift);
+  fprintf(fp, "z.maxlift = %d\n", zMaxLift);
+  fprintf(fp, "z.initialacd = %d\n", zInitialACD);
+  fprintf(fp, "z.accconst = %d\n", int(zAccConst*100));
+  fprintf(fp, "z.time = %d\n", zLayerTime);
 
-  printf("SpotSize: %d\n", spotSize);
-  printf("UseHypot: %d\n", useHypot);
+  fprintf(fp, "general.matrixcalib = %d\n", matrixCalib);
 
+  int i = 0;
   for (int y = 0; y < PTS_Y; y++) {
     for (int x = 0; x < PTS_X; x++) {
-      printf("%5d, %5d", cpts[x][y][XPT], cpts[x][y][YPT]);
-      if (x+1 != PTS_X) {
-	printf(" | ");
-      }
+      fprintf(fp, "x.point%d = %5d\n", i, calibPtsGalvo[x][y][XPT]);
+      fprintf(fp, "y.point%d = %5d\n", i, calibPtsGalvo[x][y][YPT]);
+      i++;
     }
-    printf("\n");
   }
-  printf("\n");
+  return;
+  
   for (int y = 0; y < PTS_Y; y++) {
     for (int x = 0; x < PTS_X; x++) {
-      printf("%5d, %5d", calibpts[x][y][XPT], calibpts[x][y][YPT]);
+      printf("%5d, %5d", calibPtsGalvo[x][y][XPT], calibPtsGalvo[x][y][YPT]);
       if (x+1 != PTS_X) {
 	printf(" | ");
       }
@@ -376,15 +377,15 @@ void calibration::printCalib() {
 void calibration::findUpperLeft(float x, float y, int *ulx, int *uly) {
   for (int yc = 0; yc < (PTS_Y-1); yc++) {
     for (int xc = 0; xc < (PTS_X-1); xc++) {
-      if ( (cpts[xc][yc][XPT] <= x) && (x < cpts[xc+1][yc+1][XPT]) &&
-	   (cpts[xc][yc][YPT] <= y) && (y < cpts[xc+1][yc+1][YPT])) {
+      if ( (calPoints[xc][yc][XPT] <= x) && (x < calPoints[xc+1][yc+1][XPT]) &&
+	   (calPoints[xc][yc][YPT] <= y) && (y < calPoints[xc+1][yc+1][YPT])) {
 	*ulx = xc;
 	*uly = yc;
 	return ;
       } else {
 	/*printf("(%d, %d) = %3d %3d | %3d %3d\n", xc, yc,
-	       cpts[xc][yc][XPT], cpts[xc][yc][YPT], 
-	       cpts[xc+1][yc+1][XPT], cpts[xc+1][yc+1][YPT]);*/
+	       calPoints[xc][yc][XPT], calPoints[xc][yc][YPT], 
+	       calPoints[xc+1][yc+1][XPT], calPoints[xc+1][yc+1][YPT]);*/
       }
     }
   }
@@ -393,52 +394,66 @@ void calibration::findUpperLeft(float x, float y, int *ulx, int *uly) {
 }
 
 void calibration::transformXY(float x, float y, int *nx, int *ny) {
-  int upperLeftX;
-  int upperLeftY;
-  findUpperLeft(x, y, &upperLeftX, &upperLeftY);
+  if (useMatrixCalib()) {
+    int upperLeftX;
+    int upperLeftY;
+    
+    findUpperLeft(x, y, &upperLeftX, &upperLeftY);
 #define PRECISION (long)100
-  
-  /*printf("%f, %f @ (%d,%d) => (%d, %d) -> (%d, %d)\n", 
-	   x,y, upperLeftX, upperLeftY,
-	   calibpts[upperLeftX][upperLeftY][XPT],
-	   calibpts[upperLeftX][upperLeftY][YPT],
-	   calibpts[upperLeftX+1][upperLeftY+1][XPT],
-	   calibpts[upperLeftX+1][upperLeftY+1][YPT]);
-    printf("%f, %f => (%d, %d) -> (%d, %d)\n", 
-	   x,y, 
-	   cpts[upperLeftX][upperLeftY][XPT],
-	   cpts[upperLeftX][upperLeftY][YPT],
-	   cpts[upperLeftX+1][upperLeftY][XPT],
-	   cpts[upperLeftX][upperLeftY+1][YPT]);
-  */
-  long xLeftSlope   = calibpts[upperLeftX  ][upperLeftY  ][XPT] - calibpts[upperLeftX  ][upperLeftY+1][XPT];
-  long xRightSlope  = calibpts[upperLeftX+1][upperLeftY  ][XPT] - calibpts[upperLeftX+1][upperLeftY+1][XPT];
-  long yTopSlope    = calibpts[upperLeftX  ][upperLeftY  ][YPT] - calibpts[upperLeftX+1][upperLeftY  ][YPT];
-  long yBottomSlope = calibpts[upperLeftX  ][upperLeftY+1][YPT] - calibpts[upperLeftX+1][upperLeftY+1][YPT];
-  
-  /*printf("xLS,xRS=(%ld, %ld)  yTS,yBS=(%ld, %ld)\n", xLeftSlope, xRightSlope, yTopSlope, yBottomSlope);
-    printf("%d %d | %d %d\n", cpts[upperLeftX+1][upperLeftY  ][XPT], cpts[upperLeftX  ][upperLeftY  ][XPT],
-	                      cpts[upperLeftX  ][upperLeftY+1][YPT], cpts[upperLeftX  ][upperLeftY  ][YPT]);
-  */
-  long xRatio = (long)(PRECISION*(x - cpts[upperLeftX][upperLeftY][XPT])) / (cpts[upperLeftX+1][upperLeftY  ][XPT] - cpts[upperLeftX  ][upperLeftY  ][XPT]);
-  long yRatio = (long)(PRECISION*(y - cpts[upperLeftX][upperLeftY][YPT])) / (cpts[upperLeftX  ][upperLeftY+1][YPT] - cpts[upperLeftX  ][upperLeftY  ][YPT]);
-
+    
+    /*printf("%f, %f @ (%d,%d) => (%d, %d) -> (%d, %d)\n", 
+      x,y, upperLeftX, upperLeftY,
+      calibPtsGalvo[upperLeftX][upperLeftY][XPT],
+      calibPtsGalvo[upperLeftX][upperLeftY][YPT],
+      calibPtsGalvo[upperLeftX+1][upperLeftY+1][XPT],
+      calibPtsGalvo[upperLeftX+1][upperLeftY+1][YPT]);
+      printf("%f, %f => (%d, %d) -> (%d, %d)\n", 
+      x,y, 
+      calPoints[upperLeftX][upperLeftY][XPT],
+      calPoints[upperLeftX][upperLeftY][YPT],
+      calPoints[upperLeftX+1][upperLeftY][XPT],
+      calPoints[upperLeftX][upperLeftY+1][YPT]);
+    */
+    long xLeftSlope   = calibPtsGalvo[upperLeftX  ][upperLeftY  ][XPT] - calibPtsGalvo[upperLeftX  ][upperLeftY+1][XPT];
+    long xRightSlope  = calibPtsGalvo[upperLeftX+1][upperLeftY  ][XPT] - calibPtsGalvo[upperLeftX+1][upperLeftY+1][XPT];
+    long yTopSlope    = calibPtsGalvo[upperLeftX  ][upperLeftY  ][YPT] - calibPtsGalvo[upperLeftX+1][upperLeftY  ][YPT];
+    long yBottomSlope = calibPtsGalvo[upperLeftX  ][upperLeftY+1][YPT] - calibPtsGalvo[upperLeftX+1][upperLeftY+1][YPT];
+    
+    /*printf("xLS,xRS=(%ld, %ld)  yTS,yBS=(%ld, %ld)\n", xLeftSlope, xRightSlope, yTopSlope, yBottomSlope);
+      printf("%d %d | %d %d\n", calPoints[upperLeftX+1][upperLeftY  ][XPT], calPoints[upperLeftX  ][upperLeftY  ][XPT],
+      calPoints[upperLeftX  ][upperLeftY+1][YPT], calPoints[upperLeftX  ][upperLeftY  ][YPT]);
+    */
+    long xRatio = (long)(PRECISION*(x - calPoints[upperLeftX][upperLeftY][XPT])) / (calPoints[upperLeftX+1][upperLeftY  ][XPT] - calPoints[upperLeftX  ][upperLeftY  ][XPT]);
+    long yRatio = (long)(PRECISION*(y - calPoints[upperLeftX][upperLeftY][YPT])) / (calPoints[upperLeftX  ][upperLeftY+1][YPT] - calPoints[upperLeftX  ][upperLeftY  ][YPT]);
+    
   //printf("xR,yR=(%ld, %ld)\n", xRatio, yRatio);
-  
-  long xLeftSlopePt   = xLeftSlope   * yRatio;
-  long xRightSlopePt  = xRightSlope  * yRatio;
-  long yTopSlopePt    = yTopSlope    * xRatio;
-  long yBottomSlopePt = yBottomSlope * xRatio;
-  //printf("xLSR,xRSR=(%ld, %ld)  yTSR,yBSR=(%ld, %ld)\n", xLeftSlopePt, xRightSlopePt, yTopSlopePt, yBottomSlopePt);
+    
+    long xLeftSlopePt   = xLeftSlope   * yRatio;
+    long xRightSlopePt  = xRightSlope  * yRatio;
+    long yTopSlopePt    = yTopSlope    * xRatio;
+    long yBottomSlopePt = yBottomSlope * xRatio;
+    //printf("xLSR,xRSR=(%ld, %ld)  yTSR,yBSR=(%ld, %ld)\n", xLeftSlopePt, xRightSlopePt, yTopSlopePt, yBottomSlopePt);
 
-  long xLeftPt   = xLeftSlopePt   + calibpts[upperLeftX  ][upperLeftY  ][XPT]*PRECISION;
-  long xRightPt  = xRightSlopePt  + calibpts[upperLeftX+1][upperLeftY  ][XPT]*PRECISION;
-  long yTopPt    = yTopSlopePt    + calibpts[upperLeftX  ][upperLeftY  ][YPT]*PRECISION;
-  long yBottomPt = yBottomSlopePt + calibpts[upperLeftX  ][upperLeftY+1][YPT]*PRECISION;
-  //printf("xLR,xRR=(%ld, %ld)  yTR,yBR=(%ld, %ld)\n", xLeftPt, xRightPt, yTopPt, yBottomPt);
+    long xLeftPt   = xLeftSlopePt   + calibPtsGalvo[upperLeftX  ][upperLeftY  ][XPT]*PRECISION;
+    long xRightPt  = xRightSlopePt  + calibPtsGalvo[upperLeftX+1][upperLeftY  ][XPT]*PRECISION;
+    long yTopPt    = yTopSlopePt    + calibPtsGalvo[upperLeftX  ][upperLeftY  ][YPT]*PRECISION;
+    long yBottomPt = yBottomSlopePt + calibPtsGalvo[upperLeftX  ][upperLeftY+1][YPT]*PRECISION;
+    //printf("xLR,xRR=(%ld, %ld)  yTR,yBR=(%ld, %ld)\n", xLeftPt, xRightPt, yTopPt, yBottomPt);
+    
+    *nx = (int)(((xRightPt - xLeftPt) * xRatio)/PRECISION + xLeftPt)/PRECISION; 
+    *ny = (int)(((yBottomPt - yTopPt) * yRatio)/PRECISION + yTopPt)/PRECISION;
+  } else {
 
-  *nx = (int)(((xRightPt - xLeftPt) * xRatio)/PRECISION + xLeftPt)/PRECISION; 
-  *ny = (int)(((yBottomPt - yTopPt) * yRatio)/PRECISION + yTopPt)/PRECISION;
+    if (peg->calibData.isUnitsMM()) {
+      //printf("X MM: %d %d\n",  peg->calibData.getScale(0,1), peg->calibData.getOffset(0,1));
+      //printf("Y MM: %d %d\n",  peg->calibData.getScale(1,1), peg->calibData.getOffset(1,1));
+      *ny  = (int)(y * peg->calibData.getScale(1,1) + peg->calibData.getOffset(1,1));
+      *nx  = (int)(x * peg->calibData.getScale(0,1) + peg->calibData.getOffset(0,1));
+    } else { // not used....
+      *ny  = (int)(y * peg->calibData.getScale(1,0) + peg->calibData.getOffset(1,0));
+      *nx  = (int)(x * peg->calibData.getScale(0,0) + peg->calibData.getOffset(0,0));
+    }
+  }
 }
 
 int calibration::readCalib(char*file) {
@@ -446,8 +461,9 @@ int calibration::readCalib(char*file) {
   char *buffPtr;
   FILE *calib = fopen(file,"r");
   int lineNbr = 0;
+  snprintf(calibFile, 512, file);  // save name for later.
   if (NULL == calib) {
-    perror("Couldn't open calib file");
+    printf("Couldn't open calib (%s) file for reading", file);
     return 1;
   }
   while (fgets(buffer, sizeof(buffer), calib) != NULL) {
@@ -488,3 +504,15 @@ void calibration::adjustZScale(int i) {
   if (zScaleMM > 10000) { zScaleMM = 10000; } // TODO: is this too much or too little?
 }
 
+void calibration::writeCalib() {
+  char newFile[512];
+  snprintf(newFile, 512, "%s.new", calibFile);
+  FILE *calib = fopen(newFile, "w");
+  if (NULL == calib) {
+    printf("Couldn't open calib (%s) file for writing\n", calibFile);
+    return ;
+  } else {
+    printCalib(calib);
+    fclose(calib);
+  }
+}

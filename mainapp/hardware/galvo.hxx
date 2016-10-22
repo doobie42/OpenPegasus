@@ -60,7 +60,7 @@ public:
   ~galvo();
   void addMoveTo(ushort X, ushort Y, int L, ushort R, int layer);
   void runGalvo(int layer);
-  
+  void tuneGalvo();
 protected:
   pegasus *peg;
   sPacket pkt;
