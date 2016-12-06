@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     peg.gcodeProcessor.SetRunReal(1);
     if (strcmp(argv[2], "z") == 0) {
       peg.zaxisControl.tuneZ();
-    }else if (strcmp(argv[2], "l") == 0) {
+    }else if (strcmp(argv[2], "galvo") == 0) {
       peg.galvoControl.tuneGalvo();
     } else {
       peg.gcodeProcessor.openFile(argv[2]);
