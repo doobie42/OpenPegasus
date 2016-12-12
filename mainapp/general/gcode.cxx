@@ -268,6 +268,10 @@ gcodeStatus gcode::processG(int execute, float value, char*buffer) {
 	currentZ = zline;
 	if (!analyzed) {
 	  totalLayers++;
+	  if (gui != NULL) {
+	    gui->getFile()->setLayers(0, totalLayers);
+	    gui->getFile()->setLaser(0, totalLaser);
+	  }
 	}
 	return GCodeNewLayer;
 	
@@ -275,6 +279,7 @@ gcodeStatus gcode::processG(int execute, float value, char*buffer) {
 	if (peg->calibData.getDebugLevel() & DEBUG_SIMPLE) {p=1; printf("Z step=%f did not change. ", zline); }
       }
     }
+    // TBD: do we want to pay attention to feed rate or assume we know better?
     if ((hasElement & (1<<HAS_X|1<<HAS_Y|1<<HAS_E)) == (1<<HAS_X|1<<HAS_Y|1<<HAS_E)) {
       if (absolutePos == 0) {
 	printf("ERROR!  OH NO!  I don't support abs position yet!\n");

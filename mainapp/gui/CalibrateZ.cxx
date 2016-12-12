@@ -109,7 +109,7 @@ void CalibrateZ::updateStatus() {
   zPosPt = pegPtr->zaxisControl.getZ();
   distance = (float)zPosPt / (float)Adj;
   printf("Adj=%d, zP=%d\n", Adj, zPosPt);
-  snprintf(strMsg, 48, "Z @%f mm\nSteps/MM= =%d\nSteps=%d", distance, Adj, zPosPt);
+  snprintf(strMsg, 48, "Calib Z=%d\nZ @%f mm\nSteps/MM= =%d\nSteps=%d", pegPtr->calibData.getBelowLimit(), distance, Adj, zPosPt);
   zPos.set_text(strMsg);
 
   //zPos.invalidate ();

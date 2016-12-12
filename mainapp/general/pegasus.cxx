@@ -17,7 +17,7 @@ pegasus::pegasus(MainApp *a_MainPtr) :
   zaxisControl(this)
 {
   printf("pegasus construct\n");
-  calibData.readCalib("calib.txt");
+  calibData.readCalib("calib.txt", 0);
   calibData.printCalib(stdout);
 }
 

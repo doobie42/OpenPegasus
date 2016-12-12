@@ -456,7 +456,7 @@ void calibration::transformXY(float x, float y, int *nx, int *ny) {
   }
 }
 
-int calibration::readCalib(char*file) {
+int calibration::readCalib(char*file, int recur) {
   char buffer[1024];
   char *buffPtr;
   FILE *calib = fopen(file,"r");
@@ -487,6 +487,18 @@ int calibration::readCalib(char*file) {
 	processXCalib(&buffPtr[2]);
       } else if (!strncmp(buffPtr, "y", 1)) {
 	processYCalib(&buffPtr[2]);
+      } else if (!strncmp(buffPtr, "`include ", 8)) {
+	printf("Reading sub calib file: %s\n", &buffPtr[9]);
+	tmpptr = &buffPtr[9];
+	while (*tmpptr != 0) {
+	  if ((*tmpptr == '\n' ||
+	       (*tmpptr == '\r'))) {
+	    *tmpptr = 0;
+	  } else {
+	    tmpptr++;
+	  }
+	}
+	readCalib(&buffPtr[9], 1);
       } else if (!strncmp(buffPtr, "general", 7)) {
 	processGeneralCalib(&buffPtr[8]);
       } else {
@@ -494,7 +506,9 @@ int calibration::readCalib(char*file) {
       }
     }
   }
-  peg->zaxisControl.initStep();
+  if (!recur) {
+    peg->zaxisControl.initStep();
+  }
   return 0;
 }
 

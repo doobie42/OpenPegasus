@@ -47,7 +47,7 @@ public:
   void processYCalib(char *str);
   void processZCalib(char *str);
   void printCalib(FILE*fp);
-  int readCalib(char*file);
+  int readCalib(char*file, int recur);
 
   // Z
   //int getLiftInitial();
