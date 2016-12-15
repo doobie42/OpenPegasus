@@ -10,7 +10,7 @@
    /* This overlay uses the following resources */
    exclusive-use =
           //"P9.27", "P8.46", "P9.30",
-	  "P9.28", "P9.29",  "pru0", "pru1";
+	  "P9.28", "P9.29";//,  "pru0", "pru1";
 
    fragment@0 {
       target = <&am33xx_pinmux>;

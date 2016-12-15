@@ -31,4 +31,4 @@ FILES = ["general/calib.cxx",
 gui_objects = [env.Object(x) for x in FILES];
 
 env.Program("bin/gui", gui_objects,
-		       LINKFLAGS = ['-m32', '-lpthread', '-lprussdrv']);
+		       LINKFLAGS = [ '-lpthread', '-lprussdrv']); # removed -m32 from 4.4
