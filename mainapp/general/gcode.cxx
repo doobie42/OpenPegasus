@@ -52,6 +52,7 @@ void gcode::init() {
   totalLaser  = 0;
   analyzed    = 0;
 }
+
 char *gcode::parse_pair(char *line, char *letter, float *value) {
   // null line
   if (NULL == line) {
@@ -145,13 +146,23 @@ gcodeStatus gcode::processM(int execute, float value, char *buffer) {
   return GCodeNone;
 }
 
+//#define SHOW_DISTANCE
 int gcode::scaleAndMove(int execute, float X, float Y) {
   int XS, YS;
+#ifdef SHOW_DISTANCE
+  int dx, dy;
+  static int px=0, py=0;
+  int moveDistance;
+#endif
   int p = 0;
   if (peg->calibData.useMatrixCalib()) {
     peg->calibData.transformXY(X, Y, &XS, &YS);
   }
-  //printf("X/Y=%d, %d from %f, %f\n", XS, YS, X,Y);
+#ifdef SHOW_DISTANCE
+  dx = XS-px;  dy = YS-py;
+  moveDistance = (int)sqrt(dx*dx+dy*dy);
+  printf("x,y=%5d,%5d d(x,y) = %3d, %3d, hypot=%d\n", XS,YS, dx,dy, moveDistance);
+#endif
   if (!analyzed) {
     totalLaser++;
   } else {
@@ -166,7 +177,11 @@ int gcode::scaleAndMove(int execute, float X, float Y) {
       } else {
 	laserRepeat = peg->calibData.getLaserRepeat();
       }
-      peg->galvoControl.addMoveTo((ushort)XS,(ushort)YS, peg->calibData.getLaserEnable(), laserRepeat, doneLayers);
+      if ((execute & RUN_GHOST_POINT) == RUN_GHOST_POINT) {
+	peg->galvoControl.addMoveTo((ushort)XS,(ushort)YS, 0, 10, doneLayers);
+      } else {
+	peg->galvoControl.addMoveTo((ushort)XS,(ushort)YS, peg->calibData.getLaserEnable(), laserRepeat, doneLayers);
+      }
     }
     if (gui != NULL) {
       int drawX, drawY;
@@ -186,6 +201,10 @@ int gcode::scaleAndMove(int execute, float X, float Y) {
       //printf("GUI is null!!\n");
     }
   }
+#ifdef SHOW_DISTANCE
+  px = XS;
+  py = YS;
+#endif
   nbrPoints++;
   pointsPerSlice++;
   if (peg->calibData.getDebugLevel() & DEBUG_GCODE) { p = 1; printf("MOVETO: %d, %d from %f, %f\n", XS,YS, X,Y);}
@@ -268,6 +287,7 @@ gcodeStatus gcode::processG(int execute, float value, char*buffer) {
 	currentZ = zline;
 	if (!analyzed) {
 	  totalLayers++;
+	  printf("Analyzing layer: %d\n",totalLayers);
 	  if (gui != NULL) {
 	    gui->getFile()->setLayers(0, totalLayers);
 	    gui->getFile()->setLaser(0, totalLaser);
@@ -297,13 +317,14 @@ gcodeStatus gcode::processG(int execute, float value, char*buffer) {
 	float ys = 0, X = lastX;
 	hyp = sqrt((lastX-xline)*(lastX-xline) + (lastY-yline)*(lastY-yline));
 	steps = hyp / ((float)peg->calibData.getSpotSize()/1000);
-	//printf("Spot size=%dm hyp=%f\n", peg->calibData.getSpotSize(), hyp);
+	//printf("Spot size=%dm hyp=%f, steps=%d\n", peg->calibData.getSpotSize(), hyp, steps);
 	//ys = (yline-lastY)/steps;
 	//xs = (xline-lastX)/steps;
 	ys = (yline-lastY)/steps;
 	xs = (xline-lastX)/steps;
 	//printf("Steps: %d size: %d\n", steps, peg->calibData.spotSize);
 	if (peg->calibData.getDebugLevel() & DEBUG_SIMPLE) printf("extractAmount: %f = %f - %f; hyp: %f, hyp/E: %f; dX: %f = %f - %f; dY: %f = %f - %f: steps: %d\n", extractAmount, eline, lastE, hyp, hyp/extractAmount, xline-lastX, xline, lastX, yline-lastY, yline, lastY, steps);
+	p |= scaleAndMove(RUN_GHOST_POINT, X, Y);
 	// X/Y are where we start from.  move on1
 	for (i = 0; i < steps; i++) {
 	  X+=xs;

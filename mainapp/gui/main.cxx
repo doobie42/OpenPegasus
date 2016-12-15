@@ -19,6 +19,8 @@ int main(int argc, char *argv[])
     peg.gcodeProcessor.SetRunReal(1);
     if (strcmp(argv[2], "z") == 0) {
       peg.zaxisControl.tuneZ();
+    } else if (strcmp(argv[2], "zup") == 0) {
+      peg.zaxisControl.moveZ(3000,0,0,1);
     }else if (strcmp(argv[2], "galvo") == 0) {
       peg.galvoControl.tuneGalvo();
     } else {

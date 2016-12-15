@@ -24,7 +24,9 @@
 class MainApp;
 class pegasus;
 
+#define NORUN_HARDWARE 0
 #define RUN_HARDWARE 1
+#define RUN_GHOST_POINT 3
 
 enum hasBit {
   HAS_X = 0,

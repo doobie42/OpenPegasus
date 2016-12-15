@@ -185,12 +185,12 @@ void galvo::runGalvo(int layer) {
       //#ifdef OLD_LOOPS
       //}
       //#endif
-	sendDataToPRU();
-	//#ifdef OLD_LOOPS
-	//}
-	//#endif
-	disablePRU();
-	peg->zaxisControl.setCurrentZPrinted();
+      sendDataToPRU();
+      //#ifdef OLD_LOOPS
+      //}
+      //#endif
+      disablePRU();
+      peg->zaxisControl.setCurrentZPrinted();
     } else {
       printf("Skipping GALVO run\n");
     }
@@ -296,13 +296,15 @@ void galvo::tuneGalvo() {
       runLaser = 1;
       break;
     case 'a':
+      for (int r = 0; r < 2; r++) {
       for (y = 0; y < PTS_Y; y++) {
 	for (x = 0; x < PTS_X; x++) {
 	  for (int i = 0; i < 30; i++) {
 	    peg->calibData.getCalibPts(x, y, &xp, &yp);
-	    addMoveTo(xp, yp, 0x1010, 0xff, 0);
+	    addMoveTo(xp, yp, 0x5555, 0xf, 0);
 	  }
 	}
+      }
       }
       x = pt % PTS_X;
       y = pt / PTS_X;
