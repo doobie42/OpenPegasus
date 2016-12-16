@@ -4,13 +4,14 @@
 / {
    compatible = "ti,beaglebone", "ti,beaglebone-black";
 
-   part-number = "doobie";
+   part-number = "openpegasus";
    version = "00A0";
 
    /* This overlay uses the following resources */
    exclusive-use =
-          //"P9.27", "P8.46", "P9.30",
-	  "P9.28", "P9.29";//,  "pru0", "pru1";
+          //"P9.27","P8.46","P9.30",
+	  "P9.28", "P9.29",
+	  "pru0", "pru1";
 
    fragment@0 {
       target = <&am33xx_pinmux>;
@@ -25,8 +26,8 @@
 
 			//	0x1a4 0x15 /*#define LDAC  5 // p9_27 */
 
-				0x034 0x6 /*#define LASER 2 pull down */
-				0x030 0x6 /*#define CURRENTONOFF 15 pull down*/
+				0x034 0x6 /*#define LASER 2 p8_11 pull down */
+				0x030 0x6 /*#define CURRENTONOFF 15 p8_17 pull down*/
 
             >;
          };

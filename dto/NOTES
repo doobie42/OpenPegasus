@@ -1,9 +1,9 @@
 dtc -O dtb -I dts -o /lib/firmware/openpegasus-00A0.dtbo  -b 0 -@ openpegasus-00A0.dtsi
 dtc -@ -O dtb -o /lib/firmware/openpegasus-00A0.dtbo openpegasus-00A0.dtsi
 
-export SLOTS=/sys/devices/bone_capemgr.9/slots
-export PINS=/sys/kernel/debug/pinctrl/44e10800.pinmux/pins
+#export SLOTS=/sys/devices/bone_capemgr.9/slots
+#export PINS=/sys/kernel/debug/pinctrl/44e10800.pinmux/pins
 
-cat /sys/devices/bone_capemgr.9/slots
-echo openpegasus > /sys/devices/bone_capemgr.9/slots
+#cat /sys/devices/bone_capemgr.9/slots
+#echo openpegasus > /sys/devices/bone_capemgr.9/slots
 

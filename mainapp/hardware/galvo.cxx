@@ -22,6 +22,7 @@
 #else
 #warning "Not running with real hardware!"
 #endif
+#include "err.h"
 #include <math.h>
 #include "general/pegasus.hxx"
 #include "galvo.hxx"
@@ -74,7 +75,9 @@ void galvo::writeDataToPRU(int packets, sGalvo *pkts, unsigned int loops, unsign
   // TBD: when I upgrade I can fix this, but the version of pruss has a bug with events that have the event occuring twice (https://github.com/beagleboard/am335x_pru_package/issues/28)
   // wait for PRU response
   //__sync_synchronize();return;
+#ifdef KERNEL_3.8
   prussdrv_pru_wait_event (PRU_EVTOUT_0);
+#endif
   // clear PRU response
   prussdrv_pru_clear_event (PRU_EVTOUT_0, PRU0_ARM_INTERRUPT);
 }
@@ -128,7 +131,7 @@ void galvo::enablePRU() {
   /* Open PRU Interrupt */
   if ((ret = prussdrv_open(PRU_EVTOUT_0))) {
     printf("prussdrv_open open failed\n");
-    return;
+    errx(EXIT_FAILURE, "prussdrv_open failed\n");
   }
   
   //printf("resetting\n");
