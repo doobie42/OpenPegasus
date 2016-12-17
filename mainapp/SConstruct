@@ -4,27 +4,28 @@ env = Environment(
     CXX = "g++",	
     CC  = "g++",
     CPP = "g++",
-    CCFLAGS  = ["-g", "-Wall", "-L/lib64", "-DREAL_HARDWARE", "-DREAL_Z", "-DREAL_GALVO"],
-    CXXFLAGS  = ["-g", "-Wall", "-L/lib64", "-DREAL_HARDWARE", "-DREAL_Z", "-DREAL_GALVO"],
+    CCFLAGS  = ["-g", "-Wall", "-L/lib64", "-DREAL_HARDWARE", "-DREAL_Z", "-DREAL_GALVO", "-DNO_GUI"],
+    CXXFLAGS  = ["-g", "-Wall", "-L/lib64", "-DREAL_HARDWARE", "-DREAL_Z", "-DREAL_GALVO", "-DNO_GUI"],
 #    CCFLAGS  = ["-g", "-Wall", "-L/lib64", "-DREAL_HARDWARE", "-DREAL_Z", "-DREAL_GALVO", "-DKERNEL_3.8"],
 #    CXXFLAGS  = ["-g", "-Wall", "-L/lib64", "-DREAL_HARDWARE", "-DREAL_Z", "-DREAL_GALVO", "-DKERNEL_3.8"],
     CCPATH = ["-I./", "-Igeneral/"],
     CPPPATH = ["-I./", "-Igeneral/"]
     
 );
-env.ParseConfig('pkg-config --cflags --libs gtkmm-3.0')
+
+#no_guienv.ParseConfig('pkg-config --cflags --libs gtkmm-3.0')
 FILES = ["general/calib.cxx",
       "general/gcode.cxx",
       "general/pegasus.cxx", 
 #      "GPIO/BeagleBoneBlack-GPIO.cxx", 
       "GPIO/GPIOConst.cxx", 
       "GPIO/GPIOManager.cxx", 
-      "gui/File.cxx", 
-      "gui/Calibrate.cxx", 
-      "gui/CalibrateZ.cxx", 
-      "gui/Graphics.cxx", 
-      "gui/MainApp.cxx", 
-      "gui/Settings.cxx", 
+#no gui      "gui/File.cxx", 
+#no gui      "gui/Calibrate.cxx", 
+#no gui      "gui/CalibrateZ.cxx", 
+#no gui      "gui/Graphics.cxx", 
+#no gui      "gui/MainApp.cxx", 
+#no gui      "gui/Settings.cxx", 
       "hardware/galvo.cxx",
       "hardware/zaxis.cxx",
       "gui/main.cxx",

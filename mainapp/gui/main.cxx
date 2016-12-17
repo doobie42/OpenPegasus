@@ -7,14 +7,21 @@
   
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+
+#ifndef NO_GUI
 #include <gtkmm.h>
+#endif
 #include <gui/MainApp.hxx>
 #include "general/pegasus.hxx"
 
 int main(int argc, char *argv[])
 {
   if (argc == 3) {
-    pegasus peg(NULL);
+    pegasus peg
+#ifndef NO_GUI
+		(NULL)
+#endif
+      ;
     peg.calibData.readCalib(argv[1], 0);
     peg.gcodeProcessor.SetRunReal(1);
     if (strcmp(argv[2], "z") == 0) {
@@ -27,6 +34,7 @@ int main(int argc, char *argv[])
       peg.gcodeProcessor.openFile(argv[2]);
     }
   } else {
+#ifndef NO_GUI
     Glib::RefPtr<Gtk::Application> app =
       Gtk::Application::create(argc, argv,
 			       "org.doobie.pegasus.touch");
@@ -35,5 +43,7 @@ int main(int argc, char *argv[])
     mainwin.set_default_size(480, 250);
     
     return app->run(mainwin);
+#endif
+      
   }
 }

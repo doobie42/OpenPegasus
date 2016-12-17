@@ -9,11 +9,17 @@
 */
 #include "general/pegasus.hxx"
 
-pegasus::pegasus(MainApp *a_MainPtr) :
+pegasus::pegasus(
+#ifndef NO_GUI
+		 MainApp *a_MainPtr
+#endif
+		 ) :
+#ifndef NO_GUI
   MainPtr(a_MainPtr),
+#endif
+  calibData(this),
   gcodeProcessor(this),
   galvoControl(this),
-  calibData(this),
   zaxisControl(this)
 {
   printf("pegasus construct\n");
