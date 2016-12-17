@@ -10,16 +10,21 @@
 #ifndef MAINAPP_H
 #define MAINAPP_H
 
+#ifndef NO_GUI
 #include "Calibrate.hxx"
 #include "CalibrateZ.hxx"
 #include "Settings.hxx"
 #include "File.hxx"
+#endif
 #include "general/pegasus.hxx"
+#ifndef NO_GUI
 #include <gtkmm.h>
 #include <gtkmm/button.h>
 #include <gtkmm/window.h>
 
-class MainApp : public Gtk::Window
+class MainApp
+  : public Gtk::Window
+
 {
 public:
   MainApp();
@@ -48,5 +53,5 @@ protected:
   //Gtk::Button m_Button_Quit;
   pegasus Peg;
 };
-
+#endif
 #endif // MAINAPP_H

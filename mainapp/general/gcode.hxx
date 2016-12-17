@@ -21,7 +21,10 @@
 
 #include "general/calib.hxx"
 
+#ifndef NO_GUI
 class MainApp;
+#endif
+
 class pegasus;
 
 #define NORUN_HARDWARE 0
@@ -47,7 +50,9 @@ class gcode {
 public:
   gcode(pegasus *a_peg);
   ~gcode();
+#ifndef NO_GUI
   void setGui(MainApp*ptr) { gui = ptr; }
+#endif
   int openFile(char *file);
   void analyzeGcode();
   int getEstPrintTime() { return estPrintTime; }
@@ -63,7 +68,11 @@ protected:
   FILE *gcodeFile;
   int analyzed;
   pegasus *peg;
+#ifdef NO_GUI
+  int *gui;
+#else
   MainApp *gui;
+#endif
   char *parse_pair(char*, char*, float*);
   int scaleAndMove(int execute, float X, float Y);
   gcodeStatus processG(int execute, float value, char*buffer);

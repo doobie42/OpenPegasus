@@ -10,6 +10,8 @@
 
 #include "gui/MainApp.hxx"
 #include "general/pegasus.hxx"
+#include <stdio.h>
+#include <time.h>
 
 //extern pegasus peg;
 
@@ -183,6 +185,7 @@ int gcode::scaleAndMove(int execute, float X, float Y) {
 	peg->galvoControl.addMoveTo((ushort)XS,(ushort)YS, peg->calibData.getLaserEnable(), laserRepeat, doneLayers);
       }
     }
+#ifndef NO_GUI
     if (gui != NULL) {
       int drawX, drawY;
       float scale;
@@ -200,6 +203,7 @@ int gcode::scaleAndMove(int execute, float X, float Y) {
     } else {
       //printf("GUI is null!!\n");
     }
+#endif
   }
 #ifdef SHOW_DISTANCE
   px = XS;
@@ -280,18 +284,21 @@ gcodeStatus gcode::processG(int execute, float value, char*buffer) {
 	    peg->zaxisControl.liftMoveZ(zline*peg->calibData.getScale(2,0));
 	  }
 	}
+#ifndef NO_GUI
 	if (analyzed && gui != NULL) {
 	  gui->getFile()->DotIt(-1,-1,-1);
 	}
-
+#endif
 	currentZ = zline;
 	if (!analyzed) {
 	  totalLayers++;
 	  printf("Analyzing layer: %d\n",totalLayers);
+#ifndef NO_GUI
 	  if (gui != NULL) {
 	    gui->getFile()->setLayers(0, totalLayers);
 	    gui->getFile()->setLaser(0, totalLaser);
 	  }
+#endif
 	}
 	return GCodeNewLayer;
 	
@@ -529,9 +536,10 @@ int gcode::parseGCode(int execute, gcodeStatus stopAt) {
 	      printf("\tRemain  time: %02d:%02d:%02d (%f = %f / %f %%)\n", int(remain / 60 / 60), int(remain / 60) % 60, (int)remain % 60, remain, timeDiffSec, percentDne);
 
 	    } else {
+#ifndef NO_GUI
 	      gui->getFile()->setLayers(doneLayers, totalLayers);
 	      gui->getFile()->setLaser(doneLaser, totalLaser);
-
+#endif
 	      //todo:gui->getFile()->setElapsed(&timeDiffSec);
 	      //todo:gui->getFile()->setRemain(timeDiff.tv_sec, ((float)doneLayers/(float)totalLayers), ((float)doneLaser/(float)totalLaser));
 

@@ -18,9 +18,16 @@
 
 class pegasus {
 public:
-  pegasus(MainApp*a_MainPtr);
+  pegasus(
+#ifndef NO_GUI
+	  MainApp*a_MainPtr
+#endif
+	  );
   ~pegasus();
+
+#ifndef NO_GUI
   MainApp *MainPtr;
+#endif
   calibration calibData;
   gcode gcodeProcessor;
   galvo galvoControl;
