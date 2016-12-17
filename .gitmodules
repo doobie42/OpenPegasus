@@ -1,0 +1,3 @@
+[submodule "dtb-rebuilder"]
+	path = dtb-rebuilder
+	url = https://github.com/RobertCNelson/dtb-rebuilder

@@ -2,7 +2,7 @@
 /plugin/;
 
 / {
-   compatible = "ti,beaglebone", "ti,beaglebone-black";
+   compatible = "ti,beaglebone", "ti,beaglebone-black", "ti,beaglebone-black-wireless";
 
    part-number = "openpegasus";
    version = "00A0";
