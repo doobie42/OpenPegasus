@@ -1,0 +1,64 @@
+Flash a 4.4.* bone kernel
+	https://debian.beagleboard.org/images/bone-debian-8.6-lxqt-4gb-armhf-2016-11-06-4gb.img.xz
+	This will have 4.4.30, I have also run with 4.4.39
+	
+git clone http://github.com/doobie42/OpenPegasus
+
+Configuring WiFi (if you have wireless):
+	sudo conmanctl
+	#connmanctl> tether wifi disable 
+	#connmanctl> enable wifi 
+	#connmanctl> scan wifi 
+	#connmanctl> services 
+	#connmanctl> agent on 
+	#connmanctl> connect wifi_*_managed_psk 
+	#connmanctl> quit 
+	
+Install "extra" tools required to compile.
+	sudo apt-get update
+	sudo apt-get install scons 
+	Only needed for GUI: 
+		sudo apt-get install gtkmm-3.0 (this wild cards a lot of stuff that might not be needed, TBD cleanup) 
+	sudo apt-get autoremove
+	
+Setup BBB Device Tree:
+	cd OpenPegasus/dtb-rebuilder/
+	sudo make
+	sudo make install
+	sudo vim /boot/uEnv.txt
+		At this point you need to know what beaglebone you have and add one of the dtb=<> lines into the file.
+			Note: only black wireless and black non-wireless are supported
+			Wireless: dtb=am335x-boneblack-wireless.dtb
+			Non-Wireless: dtb=am335x-boneblack.dtb
+		Check to see if cape_universal=enable, if so, set it to disable
+	
+Update the INITRAMFS (any time you change a DTB in /boot):
+	cd /opt/scripts/
+	sudo git pull
+	cd tools/developers/
+	sudo ./update_initrd.sh
+	
+	
+	sudo vi /etc/modprobe.d/pruss-blacklist.conf to add the following:
+		 
+		blacklist pruss
+		blacklist pruss_intc
+		blacklist pru-rproc
+		
+Reboot
+
+Compile OpenPegasus:
+	cd OpenPegasus/mainapp
+	scons
+	cd hardware
+	./compileLaser
+	
+Run OpenPegasus (Right now there is no GUI, even though it is called GUI, I disabled it for the time being):
+	
+	bin/gui <calib file> - would bring up GUI when available
+	bin/gui <calib file> z - debug tool for z axis
+	bin/gui <calib file> zup  - moves the Z axis up about 2 cm
+	bin/gui <calib file> galvo - galvo calibration (works OK, not perfect)
+	bin/gui <calib file> zcal - z axis calibration (not implemented)
+	bin/gui <calib file> <gcode file> - print gcode file
+
