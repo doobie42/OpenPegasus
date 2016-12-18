@@ -32,7 +32,7 @@
  * blacklist pru-rproc
  */
 
-/* #include "am33xx-pruss-uio.dtsi" */
+#include "am33xx-pruss-uio.dtsi"
 
 / {
 	model = "TI AM335x BeagleBone Black Wireless";
@@ -111,14 +111,13 @@
 //			AM33XX_IOPAD(0x994, PIN_OUTPUT_PULLUP | MUX_MODE0) /* mcasp0_fsx.mcasp0_fsx */
 //			AM33XX_IOPAD(0x990, PIN_OUTPUT_PULLDOWN | MUX_MODE0) /* mcasp0_aclkx.mcasp0_aclkx */
 			AM33XX_IOPAD(0x86c, PIN_OUTPUT_PULLDOWN | MUX_MODE7) /* gpmc_a11.GPIO1_27 */
-				AM33XX_IOPAD(0x990, 0x15) /*#define SCLK 0 //p9_31, MCASP0_ACLKX=990h, 190h*/
-				AM33XX_IOPAD(0x994, 0x15) /*#define DIN 1 // p9_29, MCASP0_FSX=994h, 194h*/
-				AM33XX_IOPAD(0x99c, 0x15) /*#define SYNC 3 // p9_28 */
-
-			//	AM33XX_IOPAD(0x9a4, 0x15) /*#define LDAC  5 // p9_27 */
-
-				AM33XX_IOPAD(0x834, 0x6) /*#define LASER 2 p8_11 pull down */
-				AM33XX_IOPAD(0x830, 0x6) /*#define CURRENTONOFF 15 p8_17 pull down*/
+			// pegasus touch items
+			AM33XX_IOPAD(0x990, 0x15) /*#define SCLK 0 //p9_31, MCASP0_ACLKX=990h, 190h*/
+			AM33XX_IOPAD(0x994, 0x15) /*#define DIN 1 // p9_29, MCASP0_FSX=994h, 194h*/
+			AM33XX_IOPAD(0x99c, 0x15) /*#define SYNC 3 // p9_28 */
+			//AM33XX_IOPAD(0x9a4, 0x15) /*#define LDAC  5 // p9_27 */
+			AM33XX_IOPAD(0x834, 0x6) /*#define LASER 2 p8_11 pull down */
+			AM33XX_IOPAD(0x830, 0x6) /*#define CURRENTONOFF 15 p8_17 pull down*/
 		>;
 	};
 };
