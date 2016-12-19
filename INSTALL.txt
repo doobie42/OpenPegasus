@@ -25,7 +25,7 @@ Setup BBB Device Tree:
 	cd OpenPegasus/dtb-rebuilder/
 	sudo make
 	sudo make install
-	sudo vim /boot/uEnv.txt
+	sudo vim /boot/uEnv.txt  (can you see mine for a bbb wireless in BBB_configuration)
 		At this point you need to know what beaglebone you have and add one of the dtb=<> lines into the file.
 			Note: only black wireless and black non-wireless are supported
 			Wireless: dtb=am335x-boneblack-wireless.dtb
@@ -62,3 +62,19 @@ Run OpenPegasus (Right now there is no GUI, even though it is called GUI, I disa
 	bin/gui <calib file> zcal - z axis calibration (not implemented)
 	bin/gui <calib file> <gcode file> - print gcode file
 
+
+Trouble shooting:
+	prussdrv_open open failed
+	gui: prussdrv_open failed
+	     If you get this error, it means the PRU wasn't setup/enabled properly.
+
+	     Either modprobe uio_pruss (doesn't need reboot, but will need to be done every boot)
+	     Or add "uio_pruss" to /etc/modules (recommended; needs reboot)
+	      
+
+	BBB- wireless
+	     Seems to hang or lock up
+	     	   Power management is likely on:
+		   1) Current boot: Execute: sudo /sbin/iwconfig wlan0 power off
+		   2) Every boot: Create a cron job with the following 
+		   	  @reboot sleep 60 && /sbin/iwconfig wlan0 power off

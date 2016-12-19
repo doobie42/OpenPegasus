@@ -21,13 +21,14 @@ laser.firstlayersrepeat = 10
 ;laser.firstlayers = 1
 ;laser.firstlayersrepeat = 1
 
+;; old code section start
 ; This calibrates the rought X/Y; this is for the short-term.  We need a matrix transormation to get it better.
 x.scalemm         = 340
 y.scalemm         = 340
 ; offset to where we can start printing; in ticks, divide by scale to determine how many MM from edge
 x.offset          = 2750
 y.offset          = 2750
-
+;; old code section end
 ; estimated zaxis
 z.scalemm         = 200
 

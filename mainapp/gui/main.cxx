@@ -28,6 +28,8 @@ int main(int argc, char *argv[])
       peg.zaxisControl.tuneZ();
     } else if (strcmp(argv[2], "zup") == 0) {
       peg.zaxisControl.moveZ(3000,0,0,1);
+    } else if (strcmp(argv[2], "zcal") == 0) {
+      peg.zaxisControl.zCalib();
     }else if (strcmp(argv[2], "galvo") == 0) {
       peg.galvoControl.tuneGalvo();
     } else {

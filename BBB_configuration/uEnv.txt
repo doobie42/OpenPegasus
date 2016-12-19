@@ -7,8 +7,8 @@ uuid=ac4731db-c4db-463f-9129-07e6746b98ba
 ##BeagleBone Black/Green dtb's for v4.1.x (BeagleBone White just works..)
 
 ##BeagleBone Black: HDMI (Audio/Video) disabled:
-dtb=am335x-boneblack-wireless-emmc-overlay.dtb
-#dtb=am335x-boneblack-wireless.dtb
+#dtb=am335x-boneblack-wireless-emmc-overlay.dtb
+dtb=am335x-boneblack-wireless.dtb
 #dtb=am335x-boneblack.dtb
 
 ##BeagleBone Black: eMMC disabled:

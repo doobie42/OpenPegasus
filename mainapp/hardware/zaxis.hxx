@@ -37,6 +37,7 @@ public:
   void setCurrentZPrinted() { if (zP > highestZPrinted) {highestZPrinted = zP;} }
   void initStep();
   void tuneZ();
+  void zCalib();
 protected: 
 private:
   int Z_LIMIT;

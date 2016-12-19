@@ -75,7 +75,7 @@ void galvo::writeDataToPRU(int packets, sGalvo *pkts, unsigned int loops, unsign
   // TBD: when I upgrade I can fix this, but the version of pruss has a bug with events that have the event occuring twice (https://github.com/beagleboard/am335x_pru_package/issues/28)
   // wait for PRU response
   //__sync_synchronize();return;
-#ifdef KERNEL_3.8
+#ifdef KERNEL_3_8
   prussdrv_pru_wait_event (PRU_EVTOUT_0);
 #endif
   // clear PRU response
@@ -203,8 +203,54 @@ void galvo::runGalvo(int layer) {
 
   }
 }
- 
+
+//#define STEP_SMOOTHER
+//this code tries to make steps smoother on large jumps.
+#define SMOOTHER_SIZE 2000
 void galvo::addMoveTo(ushort X, ushort Y, int L, ushort R, int layer) {
+#ifdef STEP_SMOOTHER
+  if (pkt.nbrPkts > 0) {
+    ushort lX = 0, lY = 0;
+    int dX, dY, dH;
+    ushort steps;
+    printf("last pkt[%d] at %d,%d, new packet at %d, %d\n", pkt.nbrPkts,  pkt.myPackets[pkt.nbrPkts-1].Xdac, pkt.myPackets[pkt.nbrPkts-1].Ydac, X,Y);
+    lX = pkt.myPackets[pkt.nbrPkts-1].Xdac;
+    lY = pkt.myPackets[pkt.nbrPkts-1].Ydac;
+    if (pkt.nbrPkts + 4 >= PKT_LEN) {
+      // restart at the beginning.
+      printf("pkt[%d] at %d,%d near end\n", pkt.nbrPkts,  pkt.myPackets[pkt.nbrPkts-1].Xdac, pkt.myPackets[pkt.nbrPkts-1].Ydac);
+      //runGalvo(layer);
+      pkt.nbrPkts = 0;
+      pkt.myPackets[pkt.nbrPkts].Xdac = X;
+      pkt.myPackets[pkt.nbrPkts].Ydac = Y;
+      pkt.myPackets[pkt.nbrPkts].LaserData = 0xA << 24; // 1 repeat, no laser
+      pkt.nbrPkts++;
+    }
+    dX = X - lX;
+    dY = Y - lY;
+    dH = sqrt(dX*dX + dY*dY);
+    if (dH > SMOOTHER_SIZE) {
+      steps = (dH)/ SMOOTHER_SIZE + 1/*rounding*/;
+      printf("Distance: %d, steps=%d, dx=%d, dy=%d\n", dH, steps, dX, dY);
+      dX /= steps;
+      dY /= steps;
+      printf("Distance: %d, steps=%d, dx=%d, dy=%d\n", dH, steps, dX, dY);
+      for (int i = 1; i < steps; i++) {
+	printf("\tnull: %d,%d i=%d from %d %d => %d, %d\n", dX, dY, i, lX, lY,  lX + dX * i, lY +dY*i);
+	pkt.myPackets[pkt.nbrPkts].Xdac = (ushort)X;
+	pkt.myPackets[pkt.nbrPkts].Ydac = Y;
+	pkt.myPackets[pkt.nbrPkts].LaserData = 0xA << 24;// 1 repeat, no laser
+	pkt.nbrPkts++;
+	if (pkt.nbrPkts + 4 >= PKT_LEN) {
+	  runGalvo(layer);
+	}
+	pkt.nbrPkts = 0;
+      }
+      //printf("Exiting after smoothing move.\n");
+      //exit(0);
+    }
+  }
+#endif
   pkt.myPackets[pkt.nbrPkts].LaserData = (((int)R & 0xFF) << 24) | (L & 0xFFFFFF);
   //printf("X:%5d, Y:%5d, L:%x, R:%3d => %08x\n", X, Y, L, R, pkt.myPackets[pkt.nbrPkts].LaserData);
   pkt.myPackets[pkt.nbrPkts].Xdac = (ushort)X;
@@ -225,6 +271,7 @@ void galvo::tuneGalvo() {
   input = 0;
   ushort xp, yp;
   int runLaser = 1;
+  printf("pt%d (%d, %d), speed=%d> ", pt, x, y, speed);
   while (input != 'q') {
     if (runLaser) {
       for (int i = 0; i < 50; i++) {
@@ -233,9 +280,6 @@ void galvo::tuneGalvo() {
       }
       runGalvo(0);
       runLaser = 0;
-    }
-    if (input != '\n') {
-      printf("pt%d (%d, %d), speed=%d> ", pt, x, y, speed);
     }
     input = getchar();
     runLaser = 0;
@@ -322,6 +366,9 @@ void galvo::tuneGalvo() {
       input = 'q';
       break;
     } // case
+    if (input != '\n') {
+      printf("pt%d (%d, %d), speed=%d> ", pt, x, y, speed);
+    }
   }
   peg->calibData.writeCalib();
 }

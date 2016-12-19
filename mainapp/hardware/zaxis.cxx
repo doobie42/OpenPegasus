@@ -265,15 +265,15 @@ int zaxis::moveZ(int step, int ovr, int cnt, float speedDiv) {
   return 0;
 }
 
-int zTune[] = {MAX_ACCEL_DECEL_STEPS / 10,
-	       MAX_ACCEL_DECEL_STEPS / 7,
-	       MAX_ACCEL_DECEL_STEPS / 5,
-	       MAX_ACCEL_DECEL_STEPS / 2,
-	       MAX_ACCEL_DECEL_STEPS,
-	       MAX_ACCEL_DECEL_STEPS + 1,
-	       MAX_ACCEL_DECEL_STEPS * 1.25,
-	       MAX_ACCEL_DECEL_STEPS * 1.5,
-	       MAX_ACCEL_DECEL_STEPS * 2};
+int zTune[] = {(int)(MAX_ACCEL_DECEL_STEPS / 10),
+	       (int)(MAX_ACCEL_DECEL_STEPS / 7),
+	       (int)(MAX_ACCEL_DECEL_STEPS / 5),
+	       (int)(MAX_ACCEL_DECEL_STEPS / 2),
+	       (int)(MAX_ACCEL_DECEL_STEPS),
+	       (int)(MAX_ACCEL_DECEL_STEPS + 1),
+	       (int)(MAX_ACCEL_DECEL_STEPS * 1.25),
+	       (int)(MAX_ACCEL_DECEL_STEPS * 1.5),
+	       (int)(MAX_ACCEL_DECEL_STEPS * 2)};
 	  
 void zaxis::tuneZ() {
   printf("Seeking 'home'\n");
@@ -292,6 +292,54 @@ void zaxis::tuneZ() {
       usleep(peg->calibData.getLiftPause());
     }
     printf("\nMeasure the home position now; press any key to run again.\n");
+  }
+}
+
+void zaxis::zCalib() {
+  printf("Seeking 'home'\n");
+  moveZHome();
+  char input = 0;
+  int position = 0;
+  int speed = 16;
+  printf("Position: %d speed=%d> ", position, speed);
+  while (input != 'q') {
+    input = getchar();
+    switch (input) {
+    case 'U':
+    case 'u':
+      position += speed;
+      moveZ(speed, 1, 1, 1);
+      break;
+    case 'D':
+    case 'd':
+      position -= speed;
+      moveZ(-speed, 1, 1, 1);
+      break;
+    case 'H':
+    case 'h':
+      moveZ(2000, 0, 0, 1);
+      moveZHome();
+      position = 0;
+      break;
+    case 'R':
+    case 'r':
+      moveZ(2000, 0, 0, 1);
+      moveZHome();
+      moveZ(position, 0, 0, 1);
+      
+      break;
+    case '+':
+      speed *= 2;
+      if (speed > 128) { speed = 128; }
+      break;
+    case '-':
+      speed /= 2;
+      if (speed < 1) { speed = 1; }
+      break;
+    }
+    if (input != '\n') {
+      printf("Position: %d speed=%d> ", position, speed);
+    }
   }
 }
 

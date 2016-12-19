@@ -148,7 +148,7 @@ gcodeStatus gcode::processM(int execute, float value, char *buffer) {
   return GCodeNone;
 }
 
-//#define SHOW_DISTANCE
+//#define SHOW_DISTANCE // - displays distance btween points.
 int gcode::scaleAndMove(int execute, float X, float Y) {
   int XS, YS;
 #ifdef SHOW_DISTANCE
