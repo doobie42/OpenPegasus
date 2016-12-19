@@ -16,8 +16,10 @@ laser.spotsize    = 80
 laser.usehypot    = 1 ; required don't turn; only for testing
 
 ; repeat the first X layers
+; number of layers to repeat
 laser.firstlayers = 8
-laser.firstlayersrepeat = 10
+; number of times to repeat first layers
+laser.firstlayersrepeat = 8
 ;laser.firstlayers = 1
 ;laser.firstlayersrepeat = 1
 
@@ -50,7 +52,7 @@ z.accconst        = 270  ; ratio for slope; lower const means faster acceleratio
 
 ; Indicates how far below limit switch your vat is located.  Don't make it too low or you'll smash your build plate into the vat.
 ; GUI has a calibrate Z that can be used to find the depth; doesn't save to file
-z.belowlimit      = 1120
+z.belowlimit      = 1080
 
 ; new calibration method.
 general.matrix = 1

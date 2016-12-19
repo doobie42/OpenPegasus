@@ -29,9 +29,7 @@
 #define LASER_CURRENT_ENABLE 14 // p8_12
 #define LASER_ENABLE         15 // p8_11
 
-#define LASER_POWER_CYCLES    100 // Between this, the repeat, and laser pattern we control the exposure time.
-#define LASER_OFF_WAIT       0x800 // how long to wait when we turn off the laser before moving (if we move too soon, the laser might still be on)
-#define LASER_ON_WAIT        0x800 // how long to wait when we turn on the laser after moving (if we move too soon, the galvo might still be moving)
+#include "profilegalvo.hp"
 
 // Register's used
 #define rDataX               r2

@@ -267,15 +267,16 @@ void galvo::tuneGalvo() {
   int pt = 0;
   int x = 0;
   int y = 0;
-  int speed = 10;
+  int speed = 64;
   input = 0;
   ushort xp, yp;
   int runLaser = 1;
-  printf("pt%d (%d, %d), speed=%d> ", pt, x, y, speed);
+  peg->calibData.getCalibPts(x, y, &xp, &yp);
+  printf("pt%d (%d, %d) @ (%d, %d) speed=%d> ", pt, x, y, speed, xp, yp);
   while (input != 'q') {
     if (runLaser) {
+      peg->calibData.getCalibPts(x, y, &xp, &yp);
       for (int i = 0; i < 50; i++) {
-	peg->calibData.getCalibPts(x, y, &xp, &yp);
 	addMoveTo(xp, yp, 0x1111, 0xff, 0);
       }
       runGalvo(0);
@@ -316,28 +317,30 @@ void galvo::tuneGalvo() {
       peg->calibData.setCalibPtsDx(x, y, +speed, 0);
       runLaser = 1;
     break;
-    case 'U':
-    case 'u':
+    case 'D':
+    case 'd':
       // move up;
       peg->calibData.setCalibPtsDx(x, y, 0, speed);
       runLaser = 1;
     break;
-    case 'D':
-    case 'd':
+    case 'U':
+    case 'u':
       // move down;
       peg->calibData.setCalibPtsDx(x, y, 0, -speed);
       runLaser = 1;
     break;
     case 'F':
     case 'f':
+    case '+':
       // move faster
-      speed++;
+      speed*=2;
       break;
     case 'S':
     case 's':
+    case '-':
       // mov slower
-      speed--;
-      if (speed == 0) { speed = 1; }
+      speed /= 2;
+      if (speed < 1) { speed = 1; }
       break;
     case ' ':
       runLaser = 1;
@@ -367,7 +370,8 @@ void galvo::tuneGalvo() {
       break;
     } // case
     if (input != '\n') {
-      printf("pt%d (%d, %d), speed=%d> ", pt, x, y, speed);
+      peg->calibData.getCalibPts(x, y, &xp, &yp);
+      printf("pt%d (%d, %d) @ (%d, %d) speed=%d> ", pt, x, y, speed, xp, yp);
     }
   }
   peg->calibData.writeCalib();

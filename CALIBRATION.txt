@@ -1,4 +1,36 @@
 How to calibrate....
 
+Galvo
    Galvo is implemented (but not pretty)
+   Print the FSL galvo calibration file.  The order of points is different, but the sheet works.
 
+   Start calibration for galvo:
+   	 bin/gui calib.txt galvo
+	 The first point is the back left, then will go to the right, then forward.
+	 'N' - next point
+	 'P' - previous point
+	 'F' - faster, can also use '+'
+	 'S' - slower, can also use '-'
+	 'L' - move left
+	 'R' - move right
+	 'U' - move up (toward back)
+	 'D' - move down (toward front)
+	 ' ' - show laser for given point
+	 'a' - show all laser points (note: if laser profile is setup too fast you'll see lines of travel.
+	       For many prints these lines won't matter as the laser doesn't move large distances, but it does for the calib.
+	 'w' - write results to a file (it will be something like galvo.txt.new), I usually extract out the point data and place it in the galvo.txt file.
+	       At some point I'll try to output the file(s) in the existing format so you just rename the file without .net
+
+
+   Z axis
+     bin/gui calib.txt zcal
+        When you run this it will find the limit sensor.  The VAT is likely between 1000 and 1200 points below the limit sensor.
+        Warning: there is nothing to stop you from smashing the VAT or 'ceiling' of the printer.
+       
+     'u' - move up
+     'd' - move down
+     'h' - seek the home (this will move up 2-3 cm before moving down).
+     '+' - increase distance of moves
+     '-' - decrease distance of moves
+
+     Note: this does not save the value, you'll need to copy the position value into calib.txt and edit the setting (z.belowlimit=<your value>)

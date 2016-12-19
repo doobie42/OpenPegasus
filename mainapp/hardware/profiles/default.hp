@@ -1,0 +1,4 @@
+// time = 5ns * (3 + LASER_POWER_CYCLES * 2); currently (LPC=100) = 203*5 = 1015ns per spot.
+#define LASER_POWER_CYCLES    100 // Between this, the repeat, and laser pattern we control the exposure time.
+#define LASER_OFF_WAIT       0x800 // how long to wait when we turn off the laser before moving (if we move too soon, the laser might still be on)
+#define LASER_ON_WAIT        0x800 // how long to wait when we turn on the laser after moving (if we move too soon, the galvo might still be moving)
