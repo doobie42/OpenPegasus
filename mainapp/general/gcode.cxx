@@ -158,7 +158,7 @@ int gcode::scaleAndMove(int execute, float X, float Y) {
 #endif
   int p = 0;
   if (peg->calibData.useMatrixCalib()) {
-    peg->calibData.transformXY(X, Y, &XS, &YS);
+    peg->calibData.transformXY(peg->calibData.getGalvoFloat(), X, Y, &XS, &YS);
   }
 #ifdef SHOW_DISTANCE
   dx = XS-px;  dy = YS-py;

@@ -68,6 +68,7 @@ calibration::calibration(pegasus *a_peg) :
   zBelowLimit       = 40;
   //zHomeTopBottom    = 20;
   spotSize          = 80;
+  useGalvoFloat     = 1;
   useHypot          = 1;
   zLiftPause        = 1000000;
   zLiftSteps        = 1;
@@ -116,6 +117,8 @@ void calibration::processLaserCalib(char *str) {
     spotSize = value;
   } else if (!strncmp(str, "usehypot", 8)) {
     useHypot = value;
+  } else if (!strncmp(str, "usefloat", 8)) {
+    useGalvoFloat = value;
   } else if (!strncmp(str, "time", 4)) {
     laserTime = value;
   } else if (!strncmp(str, "firstlayersrepeat", 17)) {
@@ -314,6 +317,7 @@ void calibration::printCalib(FILE*fp) {
   fprintf(fp, "laser.firstlayersrepeat = %d\n", firstLayersRepeat);
   fprintf(fp, "laser.spotsize = %d\n", spotSize);
   fprintf(fp, "laser.usehypot = %d\n", useHypot);
+  fprintf(fp, "laser.float = %d\n", useGalvoFloat);
 
   fprintf(fp, "x.scalemm = %d\n", xScaleMM);
   fprintf(fp, "x.scalein = %d\n", xScaleIN);
@@ -369,17 +373,22 @@ void calibration::printCalib(FILE*fp) {
   int nx = 0;
   int ny = 0;
   int px = 0, py=0;
+  int dx, dy;
   for (int i=0; i < 5; i++) {
 
     printf("==> %d\n", i);
-    transformXY(testPts[i][XPT], testPts[i][YPT], &nx, &ny); 
-    int dx = abs(nx-px);
-    int dy = abs(ny-py);
-    printf("%f, %f => %5d, %5d (dx=%5x, %5x, hypot=%d)\n", testPts[i][XPT], testPts[i][YPT], nx, ny, dx, dy, (int)sqrt(dx*dx + dy*dy));
+    transformXY(0, testPts[i][XPT], testPts[i][YPT], &nx, &ny); 
+    dx = abs(nx-px);
+    dy = abs(ny-py);
+    printf("\tf: %f, %f => %5d, %5d (dx=%5x, %5x, hypot=%d)\n", testPts[i][XPT], testPts[i][YPT], nx, ny, dx, dy, (int)sqrt(dx*dx + dy*dy));
+    transformXY(1, testPts[i][XPT], testPts[i][YPT], &nx, &ny); 
+    dx = abs(nx-px);
+    dy = abs(ny-py);
+    printf("\td:%f, %f => %5d, %5d (dx=%5x, %5x, hypot=%d)\n", testPts[i][XPT], testPts[i][YPT], nx, ny, dx, dy, (int)sqrt(dx*dx + dy*dy));
     px=nx;
     py=ny;
   }
-  //exit(0);
+  exit(0);
 }
 
 void calibration::findUpperLeft(float x, float y, int *ulx, int *uly) {
@@ -402,15 +411,15 @@ void calibration::findUpperLeft(float x, float y, int *ulx, int *uly) {
   exit(0);
 }
 
-void calibration::transformXY(float x, float y, int *nx, int *ny) {
+void calibration::transformXY(int floatMath, float x, float y, int *nx, int *ny) {
   if (useMatrixCalib()) {
     int upperLeftX;
     int upperLeftY;
     
     findUpperLeft(x, y, &upperLeftX, &upperLeftY);
     // use floating point, note it is slower, but works, non-float doesn't work right now (precision issues).
-#define FLOAT
-#define PRECISION (long)1000
+    floatMath = 0; // TBD
+#define PRECISION (long long)10000
     /*printf("%f, %f @ (%d,%d) => (%d, %d) -> (%d, %d)\n", 
       x,y, upperLeftX, upperLeftY,
       calibPtsGalvo[upperLeftX][upperLeftY][XPT],
@@ -433,45 +442,43 @@ void calibration::transformXY(float x, float y, int *nx, int *ny) {
       printf("%d %d | %d %d\n", calPoints[upperLeftX+1][upperLeftY  ][XPT], calPoints[upperLeftX  ][upperLeftY  ][XPT],
       calPoints[upperLeftX  ][upperLeftY+1][YPT], calPoints[upperLeftX  ][upperLeftY  ][YPT]);
     */
-#ifdef FLOAT
-    float xRatio = (float)((x - calPoints[upperLeftX][upperLeftY][XPT])) / (calPoints[upperLeftX+1][upperLeftY  ][XPT] - calPoints[upperLeftX  ][upperLeftY  ][XPT]);
-    float yRatio = (float)((y - calPoints[upperLeftX][upperLeftY][YPT])) / (calPoints[upperLeftX  ][upperLeftY+1][YPT] - calPoints[upperLeftX  ][upperLeftY  ][YPT]);
-    //printf("xR,yR=(%f, %f)\n", xRatio, yRatio);
-
-    float xLeftSlopePt   = xLeftSlope   * yRatio;
-    float xRightSlopePt  = xRightSlope  * yRatio;
-    float yTopSlopePt    = yTopSlope    * xRatio;
-    float yBottomSlopePt = yBottomSlope * xRatio;
-    //printf("xLSR,xRSR=(%ld, %ld)  yTSR,yBSR=(%ld, %ld)\n", xLeftSlopePt, xRightSlopePt, yTopSlopePt, yBottomSlopePt);
-
-    float xLeftPt   = xLeftSlopePt   + calibPtsGalvo[upperLeftX  ][upperLeftY  ][XPT];
-    float xRightPt  = xRightSlopePt  + calibPtsGalvo[upperLeftX+1][upperLeftY  ][XPT];
-    float yTopPt    = yTopSlopePt    + calibPtsGalvo[upperLeftX  ][upperLeftY  ][YPT];
-    float yBottomPt = yBottomSlopePt + calibPtsGalvo[upperLeftX  ][upperLeftY+1][YPT];
-    //printf("xLR,xRR=(%ld, %ld)  yTR,yBR=(%ld, %ld)\n", xLeftPt, xRightPt, yTopPt, yBottomPt);
-    *nx = (int)(((xRightPt - xLeftPt) * xRatio) + xLeftPt);
-    *ny = (int)(((yBottomPt - yTopPt) * yRatio) + yTopPt);
-#else
-    long xRatio = (long)(PRECISION*(x - calPoints[upperLeftX][upperLeftY][XPT])) / (calPoints[upperLeftX+1][upperLeftY  ][XPT] - calPoints[upperLeftX  ][upperLeftY  ][XPT]);
-    long yRatio = (long)(PRECISION*(y - calPoints[upperLeftX][upperLeftY][YPT])) / (calPoints[upperLeftX  ][upperLeftY+1][YPT] - calPoints[upperLeftX  ][upperLeftY  ][YPT]);
-    //printf("xR,yR=(%ld, %ld)\n", xRatio, yRatio);
-
-    long xLeftSlopePt   = xLeftSlope   * yRatio;
-    long xRightSlopePt  = xRightSlope  * yRatio;
-    long yTopSlopePt    = yTopSlope    * xRatio;
-    long yBottomSlopePt = yBottomSlope * xRatio;
-    //printf("xLSR,xRSR=(%ld, %ld)  yTSR,yBSR=(%ld, %ld)\n", xLeftSlopePt, xRightSlopePt, yTopSlopePt, yBottomSlopePt);
-
-    long xLeftPt   = xLeftSlopePt   + calibPtsGalvo[upperLeftX  ][upperLeftY  ][XPT]*PRECISION;
-    long xRightPt  = xRightSlopePt  + calibPtsGalvo[upperLeftX+1][upperLeftY  ][XPT]*PRECISION;
-    long yTopPt    = yTopSlopePt    + calibPtsGalvo[upperLeftX  ][upperLeftY  ][YPT]*PRECISION;
-    long yBottomPt = yBottomSlopePt + calibPtsGalvo[upperLeftX  ][upperLeftY+1][YPT]*PRECISION;
-    //printf("xLR,xRR=(%ld, %ld)  yTR,yBR=(%ld, %ld)\n", xLeftPt, xRightPt, yTopPt, yBottomPt);
-    *nx = (int)(((xRightPt - xLeftPt) * xRatio)/PRECISION + xLeftPt)/PRECISION;
-    *ny = (int)(((yBottomPt - yTopPt) * yRatio)/PRECISION + yTopPt)/PRECISION;
-#endif
-    
-    
+    if (floatMath) {
+      float xRatio = (float)((x - calPoints[upperLeftX][upperLeftY][XPT])) / (calPoints[upperLeftX+1][upperLeftY  ][XPT] - calPoints[upperLeftX  ][upperLeftY  ][XPT]);
+      float yRatio = (float)((y - calPoints[upperLeftX][upperLeftY][YPT])) / (calPoints[upperLeftX  ][upperLeftY+1][YPT] - calPoints[upperLeftX  ][upperLeftY  ][YPT]);
+      //printf("xR,yR=(%f, %f)\n", xRatio, yRatio);
+      
+      float xLeftSlopePt   = xLeftSlope   * yRatio;
+      float xRightSlopePt  = xRightSlope  * yRatio;
+      float yTopSlopePt    = yTopSlope    * xRatio;
+      float yBottomSlopePt = yBottomSlope * xRatio;
+      //printf("xLSR,xRSR=(%ld, %ld)  yTSR,yBSR=(%ld, %ld)\n", xLeftSlopePt, xRightSlopePt, yTopSlopePt, yBottomSlopePt);
+      
+      float xLeftPt   = xLeftSlopePt   + calibPtsGalvo[upperLeftX  ][upperLeftY  ][XPT];
+      float xRightPt  = xRightSlopePt  + calibPtsGalvo[upperLeftX+1][upperLeftY  ][XPT];
+      float yTopPt    = yTopSlopePt    + calibPtsGalvo[upperLeftX  ][upperLeftY  ][YPT];
+      float yBottomPt = yBottomSlopePt + calibPtsGalvo[upperLeftX  ][upperLeftY+1][YPT];
+      //printf("xLR,xRR=(%ld, %ld)  yTR,yBR=(%ld, %ld)\n", xLeftPt, xRightPt, yTopPt, yBottomPt);
+      *nx = (int)(((xRightPt - xLeftPt) * xRatio) + xLeftPt);
+      *ny = (int)(((yBottomPt - yTopPt) * yRatio) + yTopPt);
+    } else {
+      long xRatio = (long)(PRECISION*(x - calPoints[upperLeftX][upperLeftY][XPT])) / (calPoints[upperLeftX+1][upperLeftY  ][XPT] - calPoints[upperLeftX  ][upperLeftY  ][XPT]);
+      long yRatio = (long)(PRECISION*(y - calPoints[upperLeftX][upperLeftY][YPT])) / (calPoints[upperLeftX  ][upperLeftY+1][YPT] - calPoints[upperLeftX  ][upperLeftY  ][YPT]);
+      //printf("xR,yR=(%ld, %ld)\n", xRatio, yRatio);
+      
+      long long xLeftSlopePt   = xLeftSlope   * yRatio;
+      long long xRightSlopePt  = xRightSlope  * yRatio;
+      long long yTopSlopePt    = yTopSlope    * xRatio;
+      long long yBottomSlopePt = yBottomSlope * xRatio;
+      //printf("xLSR,xRSR=(%ld, %ld)  yTSR,yBSR=(%ld, %ld)\n", xLeftSlopePt, xRightSlopePt, yTopSlopePt, yBottomSlopePt);
+      
+      long long xLeftPt   = xLeftSlopePt   + calibPtsGalvo[upperLeftX  ][upperLeftY  ][XPT]*PRECISION;
+      long long xRightPt  = xRightSlopePt  + calibPtsGalvo[upperLeftX+1][upperLeftY  ][XPT]*PRECISION;
+      long long yTopPt    = yTopSlopePt    + calibPtsGalvo[upperLeftX  ][upperLeftY  ][YPT]*PRECISION;
+      long long yBottomPt = yBottomSlopePt + calibPtsGalvo[upperLeftX  ][upperLeftY+1][YPT]*PRECISION;
+      //printf("xLR,xRR=(%ld, %ld)  yTR,yBR=(%ld, %ld)\n", xLeftPt, xRightPt, yTopPt, yBottomPt);
+      *nx = (int)(((xRightPt - xLeftPt) * xRatio)/PRECISION + xLeftPt)/PRECISION;
+      *ny = (int)(((yBottomPt - yTopPt) * yRatio)/PRECISION + yTopPt)/PRECISION;
+    }
   } else {
 
     if (peg->calibData.isUnitsMM()) {

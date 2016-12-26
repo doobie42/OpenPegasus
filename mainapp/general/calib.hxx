@@ -79,7 +79,7 @@ public:
   int getFirstLayersRepeat() { return firstLayersRepeat; }
   int stringToNbr(char*equal);
   void processPoint(int iaxis, const char *saxis, char *str, int value);
-  void transformXY(float x, float y, int *nx, int *ny);
+  void transformXY(int floatMath, float x, float y, int *nx, int *ny);
   void findUpperLeft(float x, float y, int *ulx, int *uly);
   int useMatrixCalib() { return matrixCalib; }
   void adjustXY(int iaxis, int pt, int amount, int showLaser);
@@ -90,6 +90,8 @@ public:
   void setCalibPtsDx(int x, int y, ushort xp, ushort yp) { calibPtsGalvo[x][y][XPT] += xp;  calibPtsGalvo[x][y][YPT] += yp; }
   void writeCalib();
   int getLiftInitial() { return zLiftInitial; }
+  int getGalvoFloat() { return useGalvoFloat; }
+  
 protected:
   // in mm
   static ushort calPoints[PTS_X][PTS_Y][2];
@@ -112,6 +114,7 @@ protected:
   int LaserVolume;
   int zLayerTime;
   int laserTime;
+  int useGalvoFloat;
   // Indeve
   int useHypot;
   int spotSize;
