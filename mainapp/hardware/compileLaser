@@ -1,4 +1,7 @@
-pasm -b -l runlaser.p ../bin/runlaser
-pasm -l  runlaser.p ../bin/runlaser
-pasm -b stoplaser.p ../bin/stoplaser
-gcc -o ../bin/stoplaser stoplaser.c -lprussdrv
+pasm -b -l runlaser.p ../bin/runlaser &
+pasm -l  runlaser.p ../bin/runlaser& 
+pasm -b stoplaser.p ../bin/stoplaser &
+gcc -o ../bin/stoplaser stoplaser.c -lprussdrv &
+
+pasm -b zaxis.p ../bin/zaxis
+gcc -o ../bin/dbg_zaxis dbg_zaxis.c -lprussdrv -lm

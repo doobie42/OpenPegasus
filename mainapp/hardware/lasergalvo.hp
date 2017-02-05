@@ -21,6 +21,7 @@
 
 #define SICR_OFFSET           0x24
 
+// galvo pins
 #define GALVO_SCLK            0 // p9_31
 #define GALVO_DIN             1 // p9_29
 #define GALVO_SYNC            3 // p9_28
