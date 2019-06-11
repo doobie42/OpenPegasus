@@ -1,5 +1,5 @@
 
-DTC ?= /usr/bin/dtc-v4.1.x
+DTC ?= /usr/bin/dtc
 CPP ?= cpp
 KERNEL_VERSION ?= $(shell uname -r)
 
