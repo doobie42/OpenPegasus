@@ -1,0 +1,147 @@
+//general PRU definitions
+// Refer to this mapping in the file - pruss_intc_mapping.h
+#define PRU0_PRU1_INTERRUPT     17
+#define PRU1_PRU0_INTERRUPT     18
+#define PRU0_ARM_INTERRUPT      19
+#define PRU1_ARM_INTERRUPT      20
+#define ARM_PRU0_INTERRUPT      21
+#define ARM_PRU1_INTERRUPT      22
+
+#define CONST_PRUSSINTC      C0
+#define CONST_DMTIMER2       C1
+#define CONST_ECAP           C3
+#define CONST_PRUCFG         C4
+#define CONST_PRURAM         C24
+#define CONST_PRURAM_OTHER   C25
+#define CONST_IEP            C26
+#define CONST_PRUSHAREDRAM   C28
+#define CONST_DDR            C31
+#define PRU0_R31_VEC_VALID 32    // allows notification of program completion
+#define PRU_EVTOUT_0    3        // the event number that is sent back
+
+#define SICR_OFFSET           0x24
+
+// z pins
+// Z-limit P8_16     GPIO1 / 14
+// lid     P8_17     GPIO0 / 27
+// aben (unused?)  P8_18 
+// aben2   P8_39         // pru0: 6:r31_6, pru1: 5:r30_6
+// abstep  P8_9          // gpio2 / 5
+// ABDIR   P8_10         // gpio2 / 4
+// CUR     P8_12         // pr0: r30_14
+
+#define GPIO1 0x4804C000
+#define GPIO2 0x481AC000
+#define GPIO3 0x481AE000
+
+#define GPIO_DATAIN 0x138
+#define GPIO_CLEARDATAOUT 0x190
+#define GPIO_SETDATAOUT 0x194
+#define BIT_ABSTEP 5
+#define BIT_ABDIR 4
+#define BIT_ZLIMIT 14
+
+#define STEPENABLE r30, 6
+#define rStepPin r30, 
+#define rDirection r2
+#define rLoopCnt r3
+#define rStepDelay r4
+#define rStepCnt r5
+#define rStepAccel r6
+#define rStepDecel r7
+#define rStepConst r8
+#define rScratch r15
+#define rScratch2 r16
+#define rZLimit r9
+#define rResetInterrupt r13
+
+.macro sub1qbne
+.mparam cnt, label, equal
+	sub cnt, cnt, 1
+	qbne label, cnt, equal
+.endm
+
+.macro nop
+   mov r1, r1
+.endm
+
+.macro mStepZ
+       setStep
+       nop
+       nop
+       nop
+       nop
+       nop
+       nop
+       nop
+       nop
+       nop
+       nop
+       clearStep
+.endm
+
+.macro getZLimit
+    MOV rScratch, GPIO2 | GPIO_DATAIN
+    LBBO rZLimit, rScratch, 0, 4
+    //QBBC WAIT_ECHO, r2, BIT_ZLIMIT
+.endm
+
+.macro setDirection
+  // Set diection pin
+  MOV rScratch, 1<<BIT_ABDIR
+  MOV rScratch2, GPIO2 | GPIO_SETDATAOUT
+  SBBO rScratch, rScratch2, 0, 4
+.endm
+
+.macro clearDirection
+  // Clear direction pin
+  MOV rScratch, 1<<BIT_ABDIR
+  MOV rScratch2, GPIO2 | GPIO_CLEARDATAOUT
+  SBBO rScratch, rScratch2, 0, 4
+.endm
+
+.macro setStep
+  // Set diection pin
+  MOV rScratch, 1<<BIT_ABSTEP
+  MOV rScratch2, GPIO2 | GPIO_SETDATAOUT
+  SBBO rScratch, rScratch2, 0, 4
+.endm
+
+.macro clearStep
+  // Clear step pin
+  MOV rScratch, 1<<BIT_ABSTEP
+  MOV rScratch2, GPIO2 | GPIO_CLEARDATAOUT
+  SBBO rScratch, rScratch2, 0, 4
+.endm
+
+//////////////////////
+// interrupt macros //
+//////////////////////
+.macro enableInterrupt
+//    INITIALIZE IEP INTERRUPTS
+
+       mov r14,0xFFFFFF           //For CMP0, compare trigger
+       sbco r14,c26,0x48,4
+       mov r14,0x3                // enable CMP0, and enable
+       sbco r14,c26,0x40,4        // counter reset on event
+       mov r14,0x1
+       sbco r14,c26,0x44,4        // clear status for CMP0
+       lbco r14,c26,0x4,4
+       sbco r14,c26,0x4,4         // clear GLOBAL status, overflow
+       mov r14,0x111              // enable IEP counter, inc 1
+       sbco r14,c26,0,4
+.endm
+
+.macro sendHostInterrupt
+	MOV	    R31.b0, PRU0_R31_VEC_VALID | PRU_EVTOUT_0
+.endm
+
+.macro waitForHostInterrupt
+  // PRU Host Interrupt 0 from local INTC
+  WBS r31, #30
+  resetInterrupts
+.endm
+
+.macro resetInterrupts
+   sbco rResetInterrupt, CONST_PRUSSINTC, SICR_OFFSET, 4
+.endm
