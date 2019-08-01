@@ -128,7 +128,7 @@ int zaxis::isZLimit() {
     return 1;
   } else {
     printf("========= Je lis la limite ========= \n");
-
+    printf("=========  %d ========= \n", gp->getValue(Z_LIMIT));
     return (gp->getValue(Z_LIMIT));
   }
 }
