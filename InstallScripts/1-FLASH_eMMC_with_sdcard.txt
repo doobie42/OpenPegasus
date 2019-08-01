@@ -1,0 +1,76 @@
+1- Download this image: 
+
+	https://debian.beagleboard.org/images/bone-debian-8.6-lxqt-4gb-armhf-2016-11-06-4gb.img.xz
+
+2- FLASH on an SD CARD ( balenaetcher did the job for me)
+
+3- BOOT ON SD CARD BY PRESSING BBB S2 button
+
+4- then modify uEnv.txt via ssh
+From beaglebone site for flashing
+Flashing eMMC
+To set up the standalone microSD image to automatically flash the eMMC on powerup. Login as debian (password = temppwd) and edit /boot/uEnv.txt with nano (sudo nano /boot/uEnv.txt) or your preferred editor.
+
+In /boot/uEnv.txt:
+
+##enable BBB: eMMC Flasher:
+#cmdline=init=/opt/scripts/tools/eMMC/init-eMMC-flasher-v3.sh
+Change to:
+
+##enable BBB: eMMC Flasher:
+cmdline=init=/opt/scripts/tools/eMMC/init-eMMC-flasher-v3.sh
+Optional, update Flasher Scripts:
+
+cd /opt/scripts/
+git pull
+and reboot the system, it'll flash the eMMC on the next bootup. (make sure to remove the microSD after flashing is complete, otherwise it'll just keep on re-flashing the eMMC)	
+
+5- then Reboot and religion via ssh
+
+6- git clone http://github.com/doobie42/OpenPegasus
+
+7-execute install script 1:
+
+./OpenPegasus/InstallScripts/install_script_1.sh
+
+Follow prompts if needed
+
+8-After reboot, execute install script 2
+
+./OpenPegasus/InstallScripts/install_script_2.sh
+
+9- Enjoy your NEW PegasusTouch with these commands:
+
+Run OpenPegasus (Right now there is no GUI, even though it is called GUI, I disabled it for the time being):
+	
+	bin/gui <calib file> - would bring up GUI when available
+	bin/gui <calib file> z - debug tool for z axis
+	bin/gui <calib file> zup  - moves the Z axis up about 2 cm
+	bin/gui <calib file> galvo - galvo calibration (works OK, not perfect)
+	bin/gui <calib file> zcal - z axis calibration (not implemented)
+	bin/gui <calib file> <gcode file> - print gcode file
+
+Note: there are 3 profiles I setup for the laser, they control the delay beween enabling/disable the laser and moving the galvo.  The slower will be more accurate, to change:
+		cd mainapp/hardware
+		rm profilegalvo.hp
+		ln -s profiles/<profile>.hp profilegalvo.hp
+		./compileLaser
+		   default.hp - slowest
+		   faster.hp  - medium
+		   fastest.hp - fastest (might move laser too quickly, but will print faster)
+
+Trouble shooting:
+	prussdrv_open open failed
+	gui: prussdrv_open failed
+	     If you get this error, it means the PRU wasn't setup/enabled properly.
+
+	     Either modprobe uio_pruss (doesn't need reboot, but will need to be done every boot)
+	     Or add "uio_pruss" to /etc/modules (recommended; needs reboot)
+	      
+
+	BBB- wireless
+	     Seems to hang or lock up
+	     	   Power management is likely on:
+		   1) Current boot: Execute: sudo /sbin/iwconfig wlan0 power off
+		   2) Every boot: Create a cron job with the following 
+		   	  @reboot sleep 60 && /sbin/iwconfig wlan0 power off
