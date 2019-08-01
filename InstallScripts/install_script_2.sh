@@ -25,8 +25,6 @@ cd hardware
 #	bin/gui <calib file> <gcode file> - print gcode file
 cd ..
 
-bin/gui calib.txt zup
-
 
 #Trouble shooting:
 #	prussdrv_open open failed
