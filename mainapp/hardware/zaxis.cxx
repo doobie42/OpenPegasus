@@ -189,14 +189,14 @@ int zaxis::moveZ(int step, int ovr, int cnt, float speedDiv) {
   int delayTime;
   printf("========= Alex check moveZ ========= \n ");
   if (step < 0) {
-    gp->setValue(ABDIR,GPIO::LOW);
+    gp->setValue(ABDIR,GPIO::HIGH);
     down = 1;
     if (zP - step < highestZPrinted) {
       printf ("ERROR!  Cannot move %d because we are at %d and we already printed at %d; check your gcode!\n", step, zP, highestZPrinted);
       return 0;
     }
   } else {
-    gp->setValue(ABDIR,GPIO::HIGH);
+    gp->setValue(ABDIR,GPIO::LOW);
     down = 0;
   }
   //usleep(100);
