@@ -121,7 +121,7 @@ void zaxis::enableZ(int en) {
 }
 
 void zaxis::initZAxis() {
-  "========= Alex check init Z axis ========="
+  printf("========= Alex check  initZaxis() =========");
 }
 
 int zaxis::isZLimit() {
