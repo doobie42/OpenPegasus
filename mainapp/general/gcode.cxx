@@ -12,7 +12,6 @@
 #include "general/pegasus.hxx"
 #include <stdio.h>
 #include <time.h>
-printf("====== IN gcode.cxx ======");
 //extern pegasus peg;
 
 int lineNbr = 0;
@@ -35,7 +34,8 @@ gcode::gcode(pegasus *a_peg) :
   gcodeFile(NULL),
   peg(a_peg),
   gui(NULL) {
-  printf("gcode construct\n");
+    printf("====== IN gcode.cxx ======");
+    printf("gcode construct\n");
   init();
   runReal = 0;
   firstXY = 1;
