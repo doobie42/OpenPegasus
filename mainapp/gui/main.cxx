@@ -29,7 +29,11 @@ int main(int argc, char *argv[])
     if (strcmp(argv[2], "z") == 0) {
       peg.zaxisControl.tuneZ();
     } else if (strcmp(argv[2], "zup") == 0) {
-      peg.zaxisControl.moveZ(3000,0,0,1);
+      while (1){
+          printf("La limite est à : %d \n",peg.zaxisControl.isZLimit() ? 1:0);
+
+      }
+        peg.zaxisControl.moveZ(3000,0,0,1);
         printf("La limite est à : %d \n",peg.zaxisControl.isZLimit() ? 1:0);
 
     } else if (strcmp(argv[2], "zcal") == 0) {
