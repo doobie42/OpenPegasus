@@ -13,10 +13,11 @@
 #endif
 #include <gui/MainApp.hxx>
 #include "general/pegasus.hxx"
-printf("====== IN main.cxx ======");
+
 
 int main(int argc, char *argv[])
 {
+    printf("====== IN main.cxx ======");
   if (argc == 3) {
     pegasus peg
 #ifndef NO_GUI

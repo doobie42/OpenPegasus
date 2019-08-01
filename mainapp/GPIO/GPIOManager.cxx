@@ -30,7 +30,7 @@
 #include <algorithm>
 
 #include "./GPIOConst.h"
-printf("====== IN GPIOManager.cxx.cxx ======");
+//printf("====== IN GPIOManager.cxx.cxx ======");
 
 namespace GPIO {
 

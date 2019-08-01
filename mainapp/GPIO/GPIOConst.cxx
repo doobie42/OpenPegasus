@@ -35,7 +35,7 @@
 
 
 namespace GPIO {
-    printf("====== IN GPIOConst.cxx ======");
+    //printf("====== IN GPIOConst.cxx ======");
 /**
  * Values of the edge
  */
