@@ -28,7 +28,7 @@ ushort calibration::calPoints[PTS_X][PTS_Y][2] = {{{  0,   0},{  0,  45},{  0,  
 			     */
 calibration::calibration(pegasus *a_peg) :
   peg(a_peg) {
-
+                   printf("====== IN calib.cxx ======");
   DEBUG_LEVEL = 0; //DEBUG_SIMPLE |DEBUG_BASIC;// | 0x0FFF; 
   // |DEBUG_NOZAXIS |DEBUG_NOGALVO;
   ZAxisHomed = 0;
