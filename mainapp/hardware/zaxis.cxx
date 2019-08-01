@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include "hardware/zaxis.hxx"
 #include "general/pegasus.hxx"
-printf("====== IN zaxis.cxx ======");
+
 
   /*
    *        _____________
@@ -48,7 +48,7 @@ printf("====== IN zaxis.cxx ======");
 
 zaxis::zaxis(pegasus *a_peg) :
   peg(a_peg) {
-
+      printf("====== IN zaxis.cxx ======");
   zP = 0;
   inZCalibration =0;
   calibZTop = 0;

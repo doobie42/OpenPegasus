@@ -26,11 +26,12 @@
 #include <math.h>
 #include "general/pegasus.hxx"
 #include "galvo.hxx"
-printf("====== IN galvo.cxx ======");
 
 
 galvo::galvo(pegasus *a_peg) : 
   peg(a_peg) {
+  printf("====== IN galvo.cxx ======");
+
   printf("galvo construct\n");
 #ifndef REAL_HARDWARE
   printf("Galvo not enable via real hardware!\n");
