@@ -451,8 +451,8 @@ int gcode::openFile(char *file) {
     if (first == 1) {
       printf("Lid closed\n");
     }
-      printf("========= Alex check =========");
     analyzeGcode();
+      printf("========= Alex check =========");
     fclose(gcodeFile);
 
     curTime = time(0);
@@ -577,13 +577,13 @@ void gcode::analyzeGcode() {
     //peg->calibData.printCalib();
     if (runReal) {
       peg->zaxisControl.enableZ(1);
-      //printf("after Z enable\n");
+      printf("after Z enable\n");
       //peg->calibData.printCalib();
       peg->zaxisControl.initZAxis();
-      //printf("init\n");
+      printf("init\n");
       //peg->calibData.printCalib();
       peg->zaxisControl.moveZHome();
-      //printf("Zhome\n");
+      printf("Zhome\n");
       //peg->calibData.printCalib();
       //peg->zaxisControl.setZ(0);
     }
