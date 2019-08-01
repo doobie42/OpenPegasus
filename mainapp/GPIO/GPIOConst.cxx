@@ -32,10 +32,10 @@
 #include "./GPIOConst.h"
 #include <stdio.h>
 #include <string.h>
-printf("====== IN GPIOConst.cxx.cxx ======");
+
 
 namespace GPIO {
-
+    printf("====== IN GPIOConst.cxx ======");
 /**
  * Values of the edge
  */
