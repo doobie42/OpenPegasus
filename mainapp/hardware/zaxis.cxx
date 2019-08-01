@@ -185,7 +185,7 @@ int zaxis::moveZ(int step, int ovr, int cnt, float speedDiv) {
   int stepCntPerAccel_Const_Decel[3] = {0,0,0};
   int absStep = abs(step);
   int delayTime;
-
+  printf("========= Alex check moveZ =========");
   if (step < 0) {
     gp->setValue(ABDIR,GPIO::LOW);
     down = 1;
