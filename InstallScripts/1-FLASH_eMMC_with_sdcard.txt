@@ -37,6 +37,7 @@ Follow prompts if needed
 
 8-After reboot, execute install script 2
 
+cd /home/debian/
 ./OpenPegasus/InstallScripts/install_script_2.sh
 
 9- Enjoy your NEW PegasusTouch with these commands:
