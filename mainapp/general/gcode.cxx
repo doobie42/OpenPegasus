@@ -577,10 +577,10 @@ void gcode::analyzeGcode() {
     //peg->calibData.printCalib();
     if (runReal) {
       peg->zaxisControl.enableZ(1);
-      printf("after Z enable\n");
+      //printf("after Z enable\n");
       //peg->calibData.printCalib();
       peg->zaxisControl.initZAxis();
-      printf("init\n");
+      //printf("init\n");
       //peg->calibData.printCalib();
       peg->zaxisControl.moveZHome();
       printf("Zhome\n");

@@ -349,8 +349,13 @@ void zaxis::moveZHome() {
     printf("No Zaxis\n");
     return;
   }
+  printf("========= Alex check 1 =========");
   moveZ(peg->calibData.getLiftInitial(), 0, 0, 1);
+  printf("========= Alex check 2 =========");
+
   while (isZLimit()) {
+    printf("========= Alex check 3 =========");
+
     if (peg->calibData.DEBUG_LEVEL & DEBUG_ZAXIS) printf("Moving away from z limit");
     moveZ(peg->calibData.getLiftInitial(), 0, 0, 1);
   }
