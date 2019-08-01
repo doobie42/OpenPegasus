@@ -298,7 +298,7 @@ void zaxis::tuneZ() {
 
 void zaxis::zCalib() {
   printf("Seeking 'home'\n");
-  //moveZHome();
+  moveZHome();
   char input = 0;
   int position = 0;
   int speed = 16;
