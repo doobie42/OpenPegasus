@@ -451,6 +451,7 @@ int gcode::openFile(char *file) {
     if (first == 1) {
       printf("Lid closed\n");
     }
+      printf("========= Alex check =========");
     analyzeGcode();
     fclose(gcodeFile);
 
