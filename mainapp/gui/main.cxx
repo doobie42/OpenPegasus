@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
       peg.zaxisControl.tuneZ();
     } else if (strcmp(argv[2], "zup") == 0) {
       peg.zaxisControl.moveZ(3000,0,0,1);
-        printf("%d \n",peg.zaxisControl.isZLimit() ? 1:0);
+        printf("La limite est à : %d \n",peg.zaxisControl.isZLimit() ? 1:0);
 
     } else if (strcmp(argv[2], "zcal") == 0) {
       peg.zaxisControl.zCalib();

@@ -127,7 +127,7 @@ int zaxis::isZLimit() {
   if ((peg->calibData.DEBUG_LEVEL & DEBUG_NOZAXIS)) {
     return 1;
   } else {
-    printf("========= Je lis la limite =========");
+    printf("========= Je lis la limite ========= \n");
 
     return (gp->getValue(Z_LIMIT));
   }
