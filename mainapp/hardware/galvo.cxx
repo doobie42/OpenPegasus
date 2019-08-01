@@ -26,6 +26,8 @@
 #include <math.h>
 #include "general/pegasus.hxx"
 #include "galvo.hxx"
+printf("====== IN galvo.cxx ======");
+
 
 galvo::galvo(pegasus *a_peg) : 
   peg(a_peg) {

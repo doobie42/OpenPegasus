@@ -32,7 +32,7 @@
 #include "./GPIOConst.h"
 #include <stdio.h>
 #include <string.h>
-
+printf("====== IN GPIOConst.cxx.cxx ======");
 
 namespace GPIO {
 

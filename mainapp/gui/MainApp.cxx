@@ -9,6 +9,7 @@
 */
 #include "MainApp.hxx"
 #include <iostream>
+printf("====== IN MainApp.cxx ======");
 
 MainApp::MainApp()
   :

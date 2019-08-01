@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include "hardware/zaxis.hxx"
 #include "general/pegasus.hxx"
+printf("====== IN zaxis.cxx ======");
 
   /*
    *        _____________

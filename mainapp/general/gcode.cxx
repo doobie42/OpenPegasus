@@ -12,7 +12,7 @@
 #include "general/pegasus.hxx"
 #include <stdio.h>
 #include <time.h>
-
+printf("====== IN gcode.cxx ======");
 //extern pegasus peg;
 
 int lineNbr = 0;
