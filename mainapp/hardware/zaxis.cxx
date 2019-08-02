@@ -337,6 +337,40 @@ void zaxis::zCalib() {
       speed /= 2;
       if (speed < 1) { speed = 1; }
       break;
+    case 'Z':
+    case 'z':
+       enableZ(0);
+       printf("Descendre manuellement la plaque");
+    case 'X':
+    case 'x':
+        enableZ(1);
+        position = 0;
+        while (!isZlimit()) {
+          // TODO verify if can go to step of 1 with not too slow time
+          moveZ(4, 1, 1, 1);
+          position = position + 4;
+        }
+        moveZ(peg->calibData.getBelowLimit(), 1, 0, 1);
+        position = position + peg->calibData.getBelowLimit();
+        position_before = position;
+        while (isZLimit()) {
+
+          if (peg->calibData.DEBUG_LEVEL & DEBUG_ZAXIS) printf("Moving away from z limit");
+          moveZ(4, 1, 1, 1);
+          position = position + 4;
+        }
+        if (peg->calibData.DEBUG_LEVEL & DEBUG_ZAXIS) printf("Seeking zLimit\n");
+
+        while (moveZ(-(position - position_before), 0, 0, 1) == 0) {
+          zP = 0;
+        }
+        if (peg->calibData.DEBUG_LEVEL & DEBUG_ZAXIS) printf("Found zLimit\n");
+        moveZ(-peg->calibData.getBelowLimit(), 1, 0, 1);
+        position = position - peg->calibData.getBelowLimit();
+        zP = 0;
+}
+        printf("BELOW LIMIT STEPS NUMBER ARE %d",position);
+    }
     }
     if (input != '\n') {
       printf("Position: %d speed=%d> ", position, speed);
@@ -349,12 +383,9 @@ void zaxis::moveZHome() {
     printf("No Zaxis\n");
     return;
   }
-  printf("========= Alex check 1 =========");
   moveZ(peg->calibData.getLiftInitial(), 0, 0, 1);
-  printf("========= Alex check 2 =========");
 
   while (isZLimit()) {
-    printf("========= Alex check 3 =========");
 
     if (peg->calibData.DEBUG_LEVEL & DEBUG_ZAXIS) printf("Moving away from z limit");
     moveZ(peg->calibData.getLiftInitial(), 0, 0, 1);
