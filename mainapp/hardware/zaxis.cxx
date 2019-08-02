@@ -298,7 +298,7 @@ void zaxis::tuneZ() {
 
 void zaxis::zCalib() {
   printf("Seeking 'home'\n");
-  moveZHome();
+  /*moveZHome();
   char input = 0;
   int position = 0;
   int speed = 16;
@@ -337,13 +337,7 @@ void zaxis::zCalib() {
       speed /= 2;
       if (speed < 1) { speed = 1; }
       break;
-    case 'Z':
-    case 'z':
-       enableZ(0);
-       printf("Descendre manuellement la plaque");
-    case 'X':
-    case 'x':
-        enableZ(1);
+   */
         position = 0;
         while (!isZLimit()) {
           // TODO verify if can go to step of 1 with not too slow time
@@ -369,8 +363,8 @@ void zaxis::zCalib() {
         position = position - peg->calibData.getBelowLimit();
         zP = 0;
         printf("BELOW LIMIT STEPS NUMBER ARE %d",position);
-    }
-    }
+    //}
+    //}
     if (input != '\n') {
       printf("Position: %d speed=%d> ", position, speed);
     }
