@@ -345,7 +345,7 @@ void zaxis::zCalib() {
     case 'x':
         enableZ(1);
         position = 0;
-        while (!isZlimit()) {
+        while (!isZLimit()) {
           // TODO verify if can go to step of 1 with not too slow time
           moveZ(4, 1, 1, 1);
           position = position + 4;
