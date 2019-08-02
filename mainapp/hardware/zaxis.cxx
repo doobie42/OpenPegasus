@@ -338,7 +338,7 @@ void zaxis::zCalib() {
       if (speed < 1) { speed = 1; }
       break;
    */
-        position = 0;
+        int position = 0;
         while (!isZLimit()) {
           // TODO verify if can go to step of 1 with not too slow time
           moveZ(4, 1, 1, 1);
