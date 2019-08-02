@@ -298,7 +298,7 @@ void zaxis::tuneZ() {
 
 void zaxis::zCalib() {
   printf("Seeking 'home'\n");
-  /*moveZHome();
+  moveZHome();
   char input = 0;
   int position = 0;
   int speed = 16;
@@ -337,37 +337,13 @@ void zaxis::zCalib() {
       speed /= 2;
       if (speed < 1) { speed = 1; }
       break;
-   */
-        int position = 0;
-        while (!isZLimit()) {
-          // TODO verify if can go to step of 1 with not too slow time
-          moveZ(4, 1, 1, 1);
-          position = position + 4;
-        }
-        moveZ(peg->calibData.getBelowLimit(), 1, 0, 1);
-        position = position + peg->calibData.getBelowLimit();
-        int position_before = position;
-        while (isZLimit()) {
 
-          if (peg->calibData.DEBUG_LEVEL & DEBUG_ZAXIS) printf("Moving away from z limit");
-          moveZ(4, 1, 1, 1);
-          position = position + 4;
-        }
-        if (peg->calibData.DEBUG_LEVEL & DEBUG_ZAXIS) printf("Seeking zLimit\n");
 
-        while (moveZ(-(position - position_before), 0, 0, 1) == 0) {
-          zP = 0;
-        }
-        if (peg->calibData.DEBUG_LEVEL & DEBUG_ZAXIS) printf("Found zLimit\n");
-        moveZ(-peg->calibData.getBelowLimit(), 1, 0, 1);
-        position = position - peg->calibData.getBelowLimit();
-        zP = 0;
-        printf("BELOW LIMIT STEPS NUMBER ARE %d",position);
-    /*}
+    }
     }
     if (input != '\n') {
       printf("Position: %d speed=%d> ", position, speed);
-    }*/
+    }
   }
 
 
