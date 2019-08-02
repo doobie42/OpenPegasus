@@ -375,7 +375,7 @@ void zaxis::zCalib() {
       printf("Position: %d speed=%d> ", position, speed);
     }
   }
-}
+
 
 void zaxis::moveZHome() {
   if ((peg->calibData.DEBUG_LEVEL & DEBUG_NOZAXIS)) {
