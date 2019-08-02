@@ -352,7 +352,7 @@ void zaxis::zCalib() {
         }
         moveZ(peg->calibData.getBelowLimit(), 1, 0, 1);
         position = position + peg->calibData.getBelowLimit();
-        position_before = position;
+        int position_before = position;
         while (isZLimit()) {
 
           if (peg->calibData.DEBUG_LEVEL & DEBUG_ZAXIS) printf("Moving away from z limit");
