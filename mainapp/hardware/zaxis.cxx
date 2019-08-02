@@ -368,7 +368,6 @@ void zaxis::zCalib() {
         moveZ(-peg->calibData.getBelowLimit(), 1, 0, 1);
         position = position - peg->calibData.getBelowLimit();
         zP = 0;
-}
         printf("BELOW LIMIT STEPS NUMBER ARE %d",position);
     }
     }
