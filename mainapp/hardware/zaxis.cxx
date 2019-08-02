@@ -363,11 +363,11 @@ void zaxis::zCalib() {
         position = position - peg->calibData.getBelowLimit();
         zP = 0;
         printf("BELOW LIMIT STEPS NUMBER ARE %d",position);
-    //}
-    //}
+    /*}
+    }
     if (input != '\n') {
       printf("Position: %d speed=%d> ", position, speed);
-    }
+    }*/
   }
 
 
