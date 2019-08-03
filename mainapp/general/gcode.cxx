@@ -12,7 +12,6 @@
 #include "general/pegasus.hxx"
 #include <stdio.h>
 #include <time.h>
-
 //extern pegasus peg;
 
 int lineNbr = 0;
@@ -35,7 +34,8 @@ gcode::gcode(pegasus *a_peg) :
   gcodeFile(NULL),
   peg(a_peg),
   gui(NULL) {
-  printf("gcode construct\n");
+    printf("====== IN gcode.cxx ======");
+    printf("gcode construct\n");
   init();
   runReal = 0;
   firstXY = 1;
@@ -451,7 +451,8 @@ int gcode::openFile(char *file) {
     if (first == 1) {
       printf("Lid closed\n");
     }
-    analyzeGcode();
+
+      analyzeGcode();
     fclose(gcodeFile);
 
     curTime = time(0);
@@ -569,11 +570,16 @@ void gcode::analyzeGcode() {
 #else
     startTime = time(0);
 #endif
-    parseGCode(runReal, GCodeEndOfFile);
-    
+
+      parseGCode(runReal, GCodeEndOfFile);
+
   } else {
-    printf("Analyzing...%d\n", runReal);   
-    //peg->calibData.printCalib();
+      printf("========= Alex check AnalyzeGcode =========");
+
+      printf("Analyzing...%d\n", runReal);
+      printf("========= Alex check 1 =========");
+
+      //peg->calibData.printCalib();
     if (runReal) {
       peg->zaxisControl.enableZ(1);
       //printf("after Z enable\n");
@@ -581,8 +587,10 @@ void gcode::analyzeGcode() {
       peg->zaxisControl.initZAxis();
       //printf("init\n");
       //peg->calibData.printCalib();
-      peg->zaxisControl.moveZHome();
-      //printf("Zhome\n");
+        printf("========= Alex check 2 =========");
+
+        peg->zaxisControl.moveZHome();
+      printf("Zhome\n");
       //peg->calibData.printCalib();
       //peg->zaxisControl.setZ(0);
     }

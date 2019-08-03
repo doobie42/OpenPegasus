@@ -9,6 +9,7 @@
 */
 #include "general/pegasus.hxx"
 
+
 pegasus::pegasus(
 #ifndef NO_GUI
 		 MainApp *a_MainPtr
@@ -22,7 +23,8 @@ pegasus::pegasus(
   galvoControl(this),
   zaxisControl(this)
 {
-  printf("pegasus construct\n");
+    printf("====== IN pegasus.cxx ======");
+    printf("pegasus construct\n");
   calibData.readCalib("calib.txt", 0);
   calibData.printCalib(stdout);
 }

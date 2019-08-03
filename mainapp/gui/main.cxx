@@ -14,8 +14,10 @@
 #include <gui/MainApp.hxx>
 #include "general/pegasus.hxx"
 
+
 int main(int argc, char *argv[])
 {
+    printf("====== IN main.cxx ======");
   if (argc == 3) {
     pegasus peg
 #ifndef NO_GUI
@@ -27,7 +29,7 @@ int main(int argc, char *argv[])
     if (strcmp(argv[2], "z") == 0) {
       peg.zaxisControl.tuneZ();
     } else if (strcmp(argv[2], "zup") == 0) {
-      peg.zaxisControl.moveZ(3000,0,0,1);
+        peg.zaxisControl.moveZ(3000,0,0,1);
     } else if (strcmp(argv[2], "zcal") == 0) {
       peg.zaxisControl.zCalib();
     }else if (strcmp(argv[2], "galvo") == 0) {

@@ -18,6 +18,7 @@
 #include "hardware/zaxis.hxx"
 #include "general/pegasus.hxx"
 
+
   /*
    *        _____________
    *       /             \
@@ -47,7 +48,7 @@
 
 zaxis::zaxis(pegasus *a_peg) :
   peg(a_peg) {
-
+      printf("====== IN zaxis.cxx ======");
   zP = 0;
   inZCalibration =0;
   calibZTop = 0;
@@ -126,6 +127,7 @@ int zaxis::isZLimit() {
   if ((peg->calibData.DEBUG_LEVEL & DEBUG_NOZAXIS)) {
     return 1;
   } else {
+
     return (gp->getValue(Z_LIMIT));
   }
 }
@@ -184,7 +186,6 @@ int zaxis::moveZ(int step, int ovr, int cnt, float speedDiv) {
   int stepCntPerAccel_Const_Decel[3] = {0,0,0};
   int absStep = abs(step);
   int delayTime;
-
   if (step < 0) {
     gp->setValue(ABDIR,GPIO::HIGH);
     down = 1;
@@ -336,12 +337,15 @@ void zaxis::zCalib() {
       speed /= 2;
       if (speed < 1) { speed = 1; }
       break;
+
+
+    }
     }
     if (input != '\n') {
       printf("Position: %d speed=%d> ", position, speed);
     }
   }
-}
+
 
 void zaxis::moveZHome() {
   if ((peg->calibData.DEBUG_LEVEL & DEBUG_NOZAXIS)) {
@@ -349,7 +353,9 @@ void zaxis::moveZHome() {
     return;
   }
   moveZ(peg->calibData.getLiftInitial(), 0, 0, 1);
+
   while (isZLimit()) {
+
     if (peg->calibData.DEBUG_LEVEL & DEBUG_ZAXIS) printf("Moving away from z limit");
     moveZ(peg->calibData.getLiftInitial(), 0, 0, 1);
   }

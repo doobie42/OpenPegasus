@@ -14,7 +14,6 @@
 #include <errno.h>
 #include <ctype.h>
 #include "general/pegasus.hxx"
-
 ushort calibration::calPoints[PTS_X][PTS_Y][2] = {{{  0,   0},{  0,  45},{  0,  90},{  0, 135},{  0, 180}},
 						  {{ 45,   0},{ 45,  45},{ 45,  90},{ 45, 135},{ 45, 180}},
 						  {{ 90,   0},{ 90,  45},{ 90,  90},{ 90, 135},{ 90, 180}},
@@ -29,7 +28,7 @@ ushort calibration::calPoints[PTS_X][PTS_Y][2] = {{{  0,   0},{  0,  45},{  0,  
 			     */
 calibration::calibration(pegasus *a_peg) :
   peg(a_peg) {
-
+                   printf("====== IN calib.cxx ======");
   DEBUG_LEVEL = 0; //DEBUG_SIMPLE |DEBUG_BASIC;// | 0x0FFF; 
   // |DEBUG_NOZAXIS |DEBUG_NOGALVO;
   ZAxisHomed = 0;
