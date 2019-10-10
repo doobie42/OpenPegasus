@@ -43,16 +43,17 @@ echo "Check to see if cape_universal=enable, if so, set it to disable"
 #cd ..
 #cd BBB_configuration
 #sudo mv uEnv.txt /boot/uEnv.txt
-sudo echo "dtb=am335x-boneblack.dtb" >> /boot/uEnv.txt
-sudo echo "cmdline=coherent_pool=1M quiet cape_universal=false" >> /boot/uEnv.txt
-sudo echo "cape_disable=bone_capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN" >> /boot/uEnv.txt
-sudo echo "cape_enable=bone_capemgr.enable_partno=uio_pruss_enable:00A0" >> /boot/uEnv.txt
+
+sudo bash -c 'echo "dtb=am335x-boneblack.dtb" >> /boot/uEnv.txt'
+sudo bash -c 'echo "cmdline=coherent_pool=1M quiet cape_universal=false" >> /boot/uEnv.txt'
+sudo bash -c 'echo "cape_disable=bone_capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN" >> /boot/uEnv.txt'
+sudo bash -c 'echo "cape_enable=bone_capemgr.enable_partno=uio_pruss_enable:00A0" >> /boot/uEnv.txt'
 
 while true; do
     read -p "Do you want to view or edit uEnv.txt" yn
     case $yn in
         [Yy]* ) sudo nano /boot/uEnv.txt; break;;
-        [Nn]* ) exit;;
+        [Nn]* ) break;;
         * ) echo "Please answer Y or N.";;
     esac
 done
@@ -80,15 +81,15 @@ cd tools/developers/
 sudo ./update_initrd.sh
 
 echo " Addding lines to:  /etc/modprobe.d/pruss-blacklist.conf "
-sudo echo "blacklist pruss" >> /etc/modprobe.d/pruss-blacklist.conf
-sudo echo "blacklist pruss_intc" >> /etc/modprobe.d/pruss-blacklist.conf
-sudo echo "blacklist pru-rproc" >> /etc/modprobe.d/pruss-blacklist.conf
+sudo bash -c 'echo "blacklist pruss" >> /etc/modprobe.d/pruss-blacklist.conf'
+sudo bash -c 'echo "blacklist pruss_intc" >> /etc/modprobe.d/pruss-blacklist.conf'
+sudo bash -c 'echo "blacklist pru-rproc" >> /etc/modprobe.d/pruss-blacklist.conf'
 
 while true; do
     read -p "Do you want to view or edit pruss-blacklist.conf" yn
     case $yn in
         [Yy]* ) sudo nano /etc/modprobe.d/pruss-blacklist.conf; break;;
-        [Nn]* ) exit;;
+        [Nn]* ) break;;
         * ) echo "Please answer Y or N.";;
     esac
 done
