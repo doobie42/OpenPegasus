@@ -8,20 +8,20 @@ git clone http://github.com/doobie42/OpenPegasus
 
 #Configuring WiFi (if you have wireless):
 #	sudo conmanctl
-#	#connmanctl> tether wifi disable 
-#	#connmanctl> enable wifi 
-#	#connmanctl> scan wifi 
-#	#connmanctl> services 
-#	#connmanctl> agent on 
-#	#connmanctl> connect wifi_*_managed_psk 
-#	#connmanctl> quit 
+#	#connmanctl> tether wifi disable
+#	#connmanctl> enable wifi
+#	#connmanctl> scan wifi
+#	#connmanctl> services
+#	#connmanctl> agent on
+#	#connmanctl> connect wifi_*_managed_psk
+#	#connmanctl> quit
 
 #Install "extra" tools required to compile.
 
 sudo apt-get update
-sudo apt-get install scons 
+sudo apt-get install scons
 
-#	Only needed for GUI: 
+#	Only needed for GUI:
 #	sudo apt-get install gtkmm-3.0 (this wild cards a lot of stuff that might not be needed, TBD cleanup) 
 
 sudo apt-get autoremove
@@ -70,7 +70,7 @@ while true; do
 done
 
 # To check the file manually use:
-# sudo nano /boot/uEnv.txt  
+# sudo nano /boot/uEnv.txt
 
 # (can you see mine for a bbb wireless in BBB_configuration)
 #		At this point you need to know what beaglebone you have and add one of the dtb=<> lines into the file.
@@ -105,9 +105,9 @@ while true; do
     esac
 done
 
-# To check the file manually use:	
+# To check the file manually use:
 # sudo nano /etc/modprobe.d/pruss-blacklist.conf
-		 
+
 #		blacklist pruss
 #		blacklist pruss_intc
 #		blacklist pru-rproc
