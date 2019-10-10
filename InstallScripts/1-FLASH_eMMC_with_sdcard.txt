@@ -36,15 +36,15 @@
 6- git clone http://github.com/doobie42/OpenPegasus
 
 7- Execute install script 1:
-
-	./OpenPegasus/InstallScripts/install_script_1.sh
-
-	Follow prompts if needed
+	
+	cd /home/debian/OpenPegasus/InstallScripts/
+	bash install_script_1.sh
+		Confirm prompts if needed
 
 8- After reboot, execute install script 2
 
 	cd /home/debian/
-	./OpenPegasus/InstallScripts/install_script_2.sh
+	bash OpenPegasus/InstallScripts/install_script_2.sh
 
 9- Enjoy your NEW PegasusTouch with these commands:
 
