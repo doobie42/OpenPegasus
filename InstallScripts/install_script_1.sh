@@ -44,13 +44,24 @@ echo "Check to see if cape_universal=enable, if so, set it to disable"
 #cd BBB_configuration
 #sudo mv uEnv.txt /boot/uEnv.txt
 
-sudo bash -c 'echo "dtb=am335x-boneblack.dtb" >> /boot/uEnv.txt'
+# Comment out the cmdline= default
+sudo bash -c "sed -i '/^test_asdasdasd/s/^/#/' /boot/uEnv.txt"
+
+while true; do
+    read -p "Are you using a Beaglebone Wireless (Y/N) >" yn
+    case $yn in
+        [Yy]* ) sudo bash -c 'echo "dtb=am335x-boneblack-wireless.dtb" >> /boot/uEnv.txt'; break;;
+        [Nn]* ) sudo bash -c 'echo "dtb=am335x-boneblack.dtb" >> /boot/uEnv.txt'; break;;
+        * ) echo "Please answer Y or N.";;
+    esac
+done
+
 sudo bash -c 'echo "cmdline=coherent_pool=1M quiet cape_universal=false" >> /boot/uEnv.txt'
 sudo bash -c 'echo "cape_disable=bone_capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN" >> /boot/uEnv.txt'
 sudo bash -c 'echo "cape_enable=bone_capemgr.enable_partno=uio_pruss_enable:00A0" >> /boot/uEnv.txt'
 
 while true; do
-    read -p "Do you want to view or edit uEnv.txt" yn
+    read -p "Do you want to view or edit uEnv.txt (Y/N) >" yn
     case $yn in
         [Yy]* ) sudo nano /boot/uEnv.txt; break;;
         [Nn]* ) break;;
@@ -86,7 +97,7 @@ sudo bash -c 'echo "blacklist pruss_intc" >> /etc/modprobe.d/pruss-blacklist.con
 sudo bash -c 'echo "blacklist pru-rproc" >> /etc/modprobe.d/pruss-blacklist.conf'
 
 while true; do
-    read -p "Do you want to view or edit pruss-blacklist.conf" yn
+    read -p "Do you want to view or edit pruss-blacklist.conf (Y/N) >" yn
     case $yn in
         [Yy]* ) sudo nano /etc/modprobe.d/pruss-blacklist.conf; break;;
         [Nn]* ) break;;
@@ -102,7 +113,7 @@ done
 #		blacklist pru-rproc
 
 while true; do
-    read -p "You need to reboot, do it now?" yn
+    read -p "You need to reboot, do it now? (Y/N) >" yn
     case $yn in
         [Yy]* ) sudo reboot; break;;
         [Nn]* ) exit;;
