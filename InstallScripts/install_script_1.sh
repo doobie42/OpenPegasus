@@ -50,8 +50,8 @@ sudo bash -c "sed -i '/^cmdline/s/^/#/' /boot/uEnv.txt"
 while true; do
     read -p "Are you using a Beaglebone Wireless (Y/N) >" yn
     case $yn in
-        [Yy]* ) sudo bash -c 'echo "\ndtb=am335x-boneblack-wireless.dtb" >> /boot/uEnv.txt'; break;;
-        [Nn]* ) sudo bash -c 'echo "\ndtb=am335x-boneblack.dtb" >> /boot/uEnv.txt'; break;;
+        [Yy]* ) sudo bash -c 'echo "dtb=am335x-boneblack-wireless.dtb" >> /boot/uEnv.txt'; break;;
+        [Nn]* ) sudo bash -c 'echo "dtb=am335x-boneblack.dtb" >> /boot/uEnv.txt'; break;;
         * ) echo "Please answer Y or N.";;
     esac
 done
