@@ -45,13 +45,13 @@ echo "Check to see if cape_universal=enable, if so, set it to disable"
 #sudo mv uEnv.txt /boot/uEnv.txt
 
 # Comment out the cmdline= default
-sudo bash -c "sed -i '/^test_asdasdasd/s/^/#/' /boot/uEnv.txt"
+sudo bash -c "sed -i '/^cmdline/s/^/#/' /boot/uEnv.txt"
 
 while true; do
     read -p "Are you using a Beaglebone Wireless (Y/N) >" yn
     case $yn in
-        [Yy]* ) sudo bash -c 'echo "dtb=am335x-boneblack-wireless.dtb" >> /boot/uEnv.txt'; break;;
-        [Nn]* ) sudo bash -c 'echo "dtb=am335x-boneblack.dtb" >> /boot/uEnv.txt'; break;;
+        [Yy]* ) sudo bash -c 'echo "\n dtb=am335x-boneblack-wireless.dtb" >> /boot/uEnv.txt'; break;;
+        [Nn]* ) sudo bash -c 'echo "\n dtb=am335x-boneblack.dtb" >> /boot/uEnv.txt'; break;;
         * ) echo "Please answer Y or N.";;
     esac
 done
