@@ -35,10 +35,10 @@ sudo make
 sudo make install
 
 echo "At this point you need to know what beaglebone you have and add one of the dtb=<> lines into the file."
-echo "	Note: only black wireless and black non-wireless are supported"
-echo "	Wireless: dtb=am335x-boneblack-wireless.dtb"
-echo "	Non-Wireless: dtb=am335x-boneblack.dtb"
-echo "	Check to see if cape_universal=enable, if so, set it to disable"
+echo "Note: only black wireless and black non-wireless are supported"
+echo "Wireless: dtb=am335x-boneblack-wireless.dtb"
+echo "Non-Wireless: dtb=am335x-boneblack.dtb"
+echo "Check to see if cape_universal=enable, if so, set it to disable"
 
 #cd ..
 #cd BBB_configuration
@@ -48,9 +48,10 @@ sudo echo "cmdline=coherent_pool=1M quiet cape_universal=false" >> /boot/uEnv.tx
 sudo echo "cape_disable=bone_capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN" >> /boot/uEnv.txt
 sudo echo "cape_enable=bone_capemgr.enable_partno=uio_pruss_enable:00A0" >> /boot/uEnv.txt
 
-sudo vim /boot/uEnv.txt  
+# To check the file manually use:
+# sudo nano /boot/uEnv.txt  
 
-#(can you see mine for a bbb wireless in BBB_configuration)
+# (can you see mine for a bbb wireless in BBB_configuration)
 #		At this point you need to know what beaglebone you have and add one of the dtb=<> lines into the file.
 #			Note: only black wireless and black non-wireless are supported
 #			Wireless: dtb=am335x-boneblack-wireless.dtb
@@ -59,8 +60,8 @@ sudo vim /boot/uEnv.txt
 # also add lines for prus:
 #		cape_disable=bone_capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN
 #		cape_enable=bone_capemgr.enable_partno=uio_pruss_enable:00A0
-#
-#Check to see if cape_universal=enable, if so, set it to disable
+
+# Check to see if cape_universal=enable, if so, set it to disable
 #		cmdline=coherent_pool=1M quiet cape_universal=false
 	
 #Update the INITRAMFS (any time you change a DTB in /boot):
@@ -69,12 +70,13 @@ sudo git pull
 cd tools/developers/
 sudo ./update_initrd.sh
 
-echo " Add the followings in  /etc/modprobe.d/pruss-blacklist.conf "
-echo "blacklist pruss" >> /etc/modprobe.d/pruss-blacklist.conf
-echo "blacklist pruss_intc" >> /etc/modprobe.d/pruss-blacklist.conf
-echo "blacklist pru-rproc" >> /etc/modprobe.d/pruss-blacklist.conf
-	
-sudo vi /etc/modprobe.d/pruss-blacklist.conf
+echo " Addding lines to:  /etc/modprobe.d/pruss-blacklist.conf "
+sudo echo "blacklist pruss" >> /etc/modprobe.d/pruss-blacklist.conf
+sudo echo "blacklist pruss_intc" >> /etc/modprobe.d/pruss-blacklist.conf
+sudo echo "blacklist pru-rproc" >> /etc/modprobe.d/pruss-blacklist.conf
+
+# To check the file manually use:	
+# sudo nano /etc/modprobe.d/pruss-blacklist.conf
 		 
 #		blacklist pruss
 #		blacklist pruss_intc
