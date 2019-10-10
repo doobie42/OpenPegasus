@@ -7,9 +7,11 @@
 3- BOOT ON SD CARD BY PRESSING BBB S2 button
 
 4- MODIFY uEnv.txt via ssh (you can use putty on ip beaglebone.local port 22)
+
 	From beaglebone site for flashing
 	Flashing eMMC
-	To set up the standalone microSD image to automatically flash the eMMC on powerup. Login as debian (password = temppwd) and edit 	/boot/uEnv.txt with nano (sudo nano /boot/uEnv.txt) or your preferred editor.
+	Set up the standalone microSD image to automatically flash the eMMC on powerup:
+	Login as debian (password = temppwd) and edit: /boot/uEnv.txt with nano (sudo nano /boot/uEnv.txt) or your preferred editor.
 
 	In /boot/uEnv.txt:
 	##enable BBB: eMMC Flasher:
@@ -18,7 +20,6 @@
 	Change to: (basically uncomment this line)
 	##enable BBB: eMMC Flasher:
 	cmdline=init=/opt/scripts/tools/eMMC/init-eMMC-flasher-v3.sh
-
 
 	Optional, update Flasher Scripts:
 	cd /opt/scripts/
