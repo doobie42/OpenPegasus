@@ -62,8 +62,11 @@
 
 Examples:
 
-	Change to mainapp directory:
+	From the command line, change to mainapp directory:
 		cd home/debian/OpenPegasus/mainapp
+		
+	To cancel any running script press CTRL+Z at any time
+	
 	
 	Run Galvos Calibration:	
 		bin/gui calib.txt galvo
